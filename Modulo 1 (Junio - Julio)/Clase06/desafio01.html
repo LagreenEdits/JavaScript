@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de nombres</title>
+</head>
+<body>
+    <input type="text" id="tareaInput" placeholder="Ingresa un nombre">
+    <button id="agregarBtn">Agregar</button>
+    <ol id="listaNombres"></ol>
+
+    <script>
+
+    const nombres = []; 
+
+    document.getElementById("agregarBtn").addEventListener("click", function () {
+        const input = document.getElementById("tareaInput");
+        const nombreIngresado = input.value.toUpperCase(); 
+
+    if (nombres.includes(nombreIngresado)) {
+        alert("ALERTA: Este nombre ya existe :(");
+        return;
+    }
+
+    const nuevaTarea = document.createElement("li");
+
+    nombres.push(nombreIngresado);
+    nuevaTarea.textContent = nombreIngresado;
+    document.getElementById("listaNombres").appendChild(nuevaTarea);
+
+    input.value = "";
+    });
+
+    </script>
+</body>
+</html>

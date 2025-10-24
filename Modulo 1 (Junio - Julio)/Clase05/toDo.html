@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List Interactiva (básica)</title>
+</head>
+<body>
+    <input type="text" id="tareaInput" placeholder="Escribe una tarea">
+    <button id="agregarBtn">Agregar</button>
+    <ul id="listaTareas"></ul>
+
+    <script>
+        document.getElementById("agregarBtn").addEventListener("click", function () {
+            const input = document.getElementById("tareaInput");
+            const nuevaTarea = document.createElement("li");
+            nuevaTarea.textContent = input.value;
+            document.getElementById("listaTareas").appendChild(nuevaTarea);
+            input.value = "";
+        });
+    </script>
+</body>
+</html>

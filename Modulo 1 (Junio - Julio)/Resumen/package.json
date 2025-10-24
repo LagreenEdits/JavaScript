@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "name": "resumen",
+  "version": "1.0.0",
+  "main": "base.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

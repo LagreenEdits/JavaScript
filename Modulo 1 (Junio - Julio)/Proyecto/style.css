@@ -1,0 +1,131 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #c9f4ff;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+header {
+    background: #761a9b;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    font-size: 15px;
+    margin-bottom: 200px;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #4f005f;
+    color: #ffffff;
+    margin-top: 200px;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.todo-app {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    width: 400px;
+    text-align: center;
+}
+
+input {
+    width: 70%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px;
+    background: #289fa7;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 25%;
+}
+
+#addBtn {
+    background: #00fff2;
+    color: #000;
+    border: 2px solid #005828;
+    border-radius: 40px;
+    transition: all 0.5s
+}
+
+#addBtn:hover {
+    background: #00b2ca; /* Cambia el color de fondo al hacer hover */
+    transform: scale(1.1)
+}
+
+#taskList {
+    padding: 0;
+    width: 100%;
+}
+
+#taskList li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 30px;
+    background: #f8f9fa;
+    border-radius: 50px;
+    box-shadow: 0 10px 4px rgba(0,0,0,0.1);
+}
+
+#taskList button {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.5s;
+}
+
+#taskList button:hover {
+    opacity: 0.5;
+    transform: scale(1.2);
+}
+
+#taskList button:first-child {
+    background: #28a745;
+    color: white;
+}
+
+#taskList button:last-child {
+    background: #dc3545;
+    color: white;
+}
+
+.completed {
+    position: relative;
+    background: #16ff316b !important; /* Fondo verde claro */
+    opacity: 0.2;
+    text-decoration: line-through;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.completed::after {
+    content: "LISTO";
+    position: absolute;
+    right: 60px;
+    color: #28a745;
+    font-size: 1.5rem;
+    font-weight: bold;
+}

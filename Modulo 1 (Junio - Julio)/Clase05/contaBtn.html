@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Botones</title>
+</head>
+
+<body>
+    <h2>Contador: <span id="contador">0</span></h2>
+    <button id="incrementar">+</button>
+    <button id="disminuir">-</button>
+
+    <script>
+        let valor = 0;
+        const contadorSpan = document.getElementById("contador");
+
+        document.getElementById("incrementar").addEventListener("click", function () {
+            valor++;
+            contadorSpan.textContent = valor;
+        });
+
+            document.getElementById("disminuir").addEventListener("click", function () {
+            valor--;
+            contadorSpan.textContent = valor;
+        });
+
+
+    </script>
+
+</body>
+
+</html>

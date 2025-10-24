@@ -1,0 +1,14 @@
+const ope = require('./Modulos basicos');
+
+console.log("Suma:", ope.sumar(5, 3));   // Suma: 8
+console.log("Resta:", ope.restar(5, 3)); // Resta: 2
+console.log("Multiplicación:", ope.multiplicar(5, 3)); // Multiplicación: 15
+console.log("División:", ope.dividir(6, 3)); // División: 2
+
+//Traemos los elementos y moudlos que queremos usar
+
+const {sumar,restar} = require('./Modulos basicos');
+
+console.log("suma:",sumar(5,3));
+console.log("resta:",restar(5,3));
+

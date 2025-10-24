@@ -1,0 +1,58 @@
+>>
+git clone https://github.com/usuario/repositorio.git
+(para traer el proyecto a tu máquina local)
+
+>>
+git status
+Ver el estado actual de tus archivos
+
+>>
+git diff                       # Cambios sin agregar
+git diff --staged       # Cambios ya agregados pero no confirmados
+Ver los cambios realizados en los archivos
+
+>>
+git add archivo.txt     # Agrega un archivo específico
+git add .                       # Agrega todos los archivos modificados/nuevos
+Agregar archivos para confirmar (staging)
+
+>>
+git commit -m "Mensaje claro sobre lo que hiciste"
+Confirmar los cambios (commit)
+
+>>
+git push
+Subir cambios a GitHub
+
+git push --set-upstream origin nombre-rama
+Si es la primera vez con una nueva rama
+
+>>
+git pull
+Traer cambios desde GitHub
+
+>>
+git checkout nombre-rama
+Cambiar de rama
+
+>>
+git checkout -b nueva-rama
+Crear una nueva rama y moverte a ella
+
+>>
+git restore archivo.txt          # Revierte un archivo a su último commit
+git checkout archivo.txt         # También funciona
+Revertir archivos modificados (restaurar cambios)
+
+>>
+git pull origin nombre-rama
+Sincronizar tu rama local con la remota
+
+>>
+git rm archivo.txt
+git rm -r carpeta/
+git commit -m "Eliminar archivo o carpeta"
+git push
+Eliminar archivos o carpetas del repositorio
+
+>>

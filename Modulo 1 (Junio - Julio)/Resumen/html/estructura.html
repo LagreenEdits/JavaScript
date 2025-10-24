@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda virtual</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+    <header>
+        <h1 class="titulo">
+        AMAZON TIENDA VIRTUAL
+        </h1>
+        <button class="btn-fondo" onclick="cambiarColor()">Cambiar color</button>
+        <button class="btn-estilo" onclick="cambiarEstilo()">Cambiar estilo</button>
+        <a href="estructura2.html" class="cambiarPag">Cambiar de pagina</a>
+    </header>
+    <main class="cuerpo">
+        
+        <div class="tarjeta">
+            <h2>Lapiz</h2>
+            <div class="perfil">
+                <img src="https://img.freepik.com/vector-gratis/estilo-redondo-suave-lapiz_78370-7571.jpg?semt=ais_hybrid&w=740" alt="Foto de perfil" class="perfil-img">
+                <p class="precio">$5,000 pesos</p>
+                <p class="cantidad">0</p>
+                <p class="descripcion">Lapiz de madera de la mejor calidad.</p>
+                <button class="btn-restar">-</button>
+                <button class="btn-conectar" onclick="location.href='index2.html'">Información</button>
+                <button class="btn-sumar">+</button>
+            </div>
+        </div>
+        <div class="tarjeta">
+            <h2>Cuaderno</h2>
+            <div class="perfil">
+                <img src="https://img.freepik.com/vector-premium/dibujo-cuaderno-amarillo-cubierta-verde_1309173-119356.jpg?semt=ais_hybrid&w=740" alt="Foto de perfil" class="perfil-img">
+                <p class="precio">$10,000 pesos</p>
+                <p class="cantidad">0</p>
+                <p class="descripcion">Cuaderno de 100 hojas con tapa dura.</p>
+                <button class="btn-restar">-</button>
+                <button class="btn-conectar" onclick="location.href='index2.html'">Información</button>
+                <button class="btn-sumar">+</button>
+            </div>
+        </div>
+        <div class="tarjeta">
+            <h2>Bolígrafo</h2>
+            <div class="perfil">
+                <img src="https://www.faber-castell.com.co/-/media/Products/Product-Repository/Ondoro/24-24-05-Ballpoint-pen/147509-Ballpoint-pen-Ondoro-graphite-black/Images/147509_0_PM99.ashx?bc=ffffff&as=0&h=900&w=900&sc_lang=es-CO&hash=D4ACDDF525910D4E417430410A5B7E85" alt="Foto de perfil" class="perfil-img">
+                <p class="precio">$3,000 pesos</p>
+                <p class="cantidad">0</p>
+                <p class="descripcion">Bolígrafo de tinta azul con diseño ergonómico.</p>
+                <button class="btn-restar">-</button>
+                <button class="btn-conectar" onclick="location.href='index2.html'">Información</button>
+                <button class="btn-sumar">+</button>
+            </div>
+        </div>
+        <div class="tarjeta">
+            <h2>Goma de borrar</h2>
+            <div class="perfil">
+                <img src="https://media.istockphoto.com/id/1406151272/es/vector/suminstros-escolares-goma-o-goma-de-borrar-aislada-sobre-fondo-blanco-ilustraci%C3%B3n-vectorial.jpg?s=612x612&w=0&k=20&c=nQX4TWuGqwIZd4OAiPxZTAjMw-Ifd7H8zjvdG01ll0E=" alt="Foto de perfil" class="perfil-img">
+                <p class="precio">$2,000 pesos</p>
+                <p class="cantidad">0</p>
+                <p class="descripcion">Goma de borrar suave y duradera.</p>
+                <button class="btn-restar">-</button>
+                <button class="btn-conectar" onclick="location.href='index2.html'">Información</button>
+                <button class="btn-sumar">+</button>
+            </div>
+        </div>
+        <div class="tarjeta">
+            <h2>Regla</h2>
+            <div class="perfil">
+                <img src="https://vinifan.com/wp-content/uploads/2020/01/fucsia-20cm.jpg" alt="Foto de perfil" class="perfil-img">
+                <p class="precio">$4,000 pesos</p>
+                <p class="cantidad">0</p>
+                <p class="descripcion">Regla de 30 cm de plástico transparente.</p>
+                <button class="btn-restar">-</button>
+                <button class="btn-conectar" onclick="location.href='index2.html'">Información</button>
+                <button class="btn-sumar">+</button>
+            </div>
+        </div>
+    </main>
+    <div class="comprar" onclick="calcularPrecio()">
+        <button class="btn-comprar">COMPRAR</button>
+        <ul class="lista-productos-comprados"></ul>
+        <p class="resultado"></p>
+
+        <input type="text" id="nombre" placeholder="Escribe un nombre">
+        <button id="agregar">Agregar</button>
+        <ul id="lista-nombres"></ul>
+
+        <button id="menos">-</button>
+        <span id="contador">10</span>
+        <button id="mas">+</button>
+    </div>
+    <footer>
+        <p>Desarrollado por Juan David Laverde Ochoa</p>
+        <p>© 2025 DevSeniorCode</p>
+    </footer>
+</body>
+<script src="../js/base.js"></script>
+</html>

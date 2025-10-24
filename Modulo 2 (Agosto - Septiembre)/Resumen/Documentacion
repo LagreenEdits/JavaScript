@@ -1,0 +1,252 @@
+Preguntas comunes con el modulo 2
+
+Modulo 2 Backend Básico con Node.js y Express
+
+---------------------------------------------------------------->
+Clase 1: Introducción a Node.js: Creación de un servidor básico.
+---------------------------------------------------------------->
+
+Node.js Permite ejecutar codigo javascript fuera del navegador, pricipalmente en el servidor.
+Es orientado a eventos
+Maneja multiples conexiones
+es multiplataforma
+tiene un gestor de paquetes robusto npm
+Porgramacion modular en varios archivos
+
+module.exports: se usa para exportar lo que queremos hacer público desde un archivo.
+(SACA DEL ARCHIVO)
+
+require: se usa para importar módulos en Node.js.
+(ENTRA AL ARCHIVO)
+
+http es un modulo nativo de node.js que permite crear servidores web y manejar solicitudes HTTP.
+funciona por medio de peticiones y respuestas.
+la metadata es la información adicional que se envía junto con la solicitud o respuesta HTTP, como encabezados y cookies.
+
+los componentes de una peticion son:
+
+- Metodo HTTP (GET, POST, PUT, DELETE) (obligatorio) (sirve para definir la acción que se desea realizar en el recurso)
+- URL (obligatorio) (indica el recurso al que se está accediendo)
+- Encabezados (Headers) (opcional) (proporcionan información adicional sobre la solicitud)
+- Cuerpo (Body) (opcional) (contiene los datos que se envían al servidor, generalmente en solicitudes POST o PUT)
+- Parámetros de consulta (Query Parameters) (opcional) (se utilizan para enviar datos adicionales en la URL, generalmente en solicitudes GET)
+- Parámetros de ruta (Route Parameters) (opcional) (se utilizan para identificar recursos específicos en la URL)
+- Cookies (opcional) (se utilizan para almacenar información en el cliente y enviarla al servidor)
+
+los componentes de una respuesta son:
+
+- Código de estado (Status Code) (obligatorio) (indica el resultado de la solicitud, como 200 para éxito o 404 para no encontrado)
+- Encabezados (Headers) (opcional) (proporcionan información adicional sobre la respuesta)
+- Cuerpo (Body) (opcional) (contiene los datos que se envían al cliente)
+- Cookies (opcional) (se utilizan para almacenar información en el cliente y enviarla al servidor)
+
+como crear un servidor basico con node.js:
+
+1. Importar el modulo http
+   const http = require('http');
+2. Crear el servidor
+   const servidor = http.createServer((req, res) => {
+   // manejar solicitudes y respuestas aquí
+   });
+3. Escuchar en un puerto
+   const puerto = 3000;
+   servidor.listen(puerto, () => {
+   console.log(`Servidor escuchando en http://localhost:${puerto}`);
+   });
+4. Manejar solicitudes y respuestas
+   if(req.url === '/api/recomendados' && req.method === 'GET') {
+   // manejar la solicitud aquí
+   } else {
+   // manejar otras rutas o métodos aquí
+   }
+
+para que sirve usar las funcciones callback en node.js
+Las funciones callback en Node.js se utilizan para manejar operaciones asíncronas, como la lectura de archivos, solicitudes de red o consultas a bases de datos. Permiten que el programa continúe ejecutándose mientras espera que la operación asíncrona se complete, evitando bloqueos y mejorando el rendimiento.
+
+---------------------------------------------------------------->
+Clase 2: Introducción a Express.js: Configuración inicial y manejo de rutas.
+---------------------------------------------------------------->
+
+el puerto es un numero que identifica un canal de comunicacion en una red.(el canal por donde se comunican el cliente y el servidor)
+la ruta es la direccion o camino que se utiliza para acceder a un recurso en un servidor web. (lo que el cliente desea)
+osea que un solo puerto puede tener varias rutas.
+
+los json son un formato de datos ligero y fácil de leer que se utiliza para intercambiar información entre un cliente y un servidor.
+ejemplo de json:
+{
+"id": "1",
+"titulo": "Aprendiendo Node.js",
+"canal": "Programacion Facil",
+"duracion": "10:30"
+}
+
+un objeto es una estructura de datos que contiene propiedades y valores.
+ejemplo de objeto:
+const video = {
+id: '1',
+titulo: 'Aprendiendo Node.js',
+canal: 'Programacion Facil',
+duracion: '10:30'
+};
+
+la diferencia entre json y objeto es que el json es un formato de texto que se utiliza para intercambiar datos, mientras que un objeto es una estructura de datos en memoria que se utiliza para almacenar y manipular datos en un programa.
+
+node.js vs Express
+Node.js es un entorno de ejecución de JavaScript que permite ejecutar código JavaScript en el servidor. Proporciona una plataforma para construir aplicaciones web y servicios backend.
+Express es un framework web construido sobre Node.js que facilita la creación de aplicaciones web y APIs. Proporciona una serie de características y herramientas que simplifican el desarrollo web, como el enrutamiento, el manejo de solicitudes y respuestas, y la integración con middleware.
+
+---------------------------------------------------------------->
+Clase 3: Middleware en Express: Autenticación y validaciones.
+---------------------------------------------------------------->
+
+el middleware es una función que se ejecuta durante el ciclo de vida de una solicitud HTTP en una aplicación Express. Se utiliza para procesar la solicitud antes de que llegue al controlador o después de que el controlador haya procesado la solicitud.
+
+Ejemplos de middleware comunes:
+
+- Middleware de registro (Logging Middleware): Registra información sobre cada solicitud entrante, como la URL, el método HTTP y la hora de la solicitud.
+- Middleware de análisis de cuerpo (Body Parsing Middleware): Analiza el cuerpo de la solicitud y lo convierte en un objeto JavaScript accesible a través de req.body.
+- Middleware de autenticación (Authentication Middleware): Verifica si el usuario está autenticado antes de permitir el acceso a ciertas rutas o recursos.
+- Middleware de manejo de errores (Error Handling Middleware): Captura y maneja errores que ocurren durante el procesamiento de la solicitud.
+
+tipos de middleware:
+
+- Middleware de aplicación (Application-level Middleware): Se aplica a todas las rutas de la aplicación.
+- Middleware de ruta (Route-level Middleware): Se aplica a rutas específicas dentro de la aplicación.
+- Middleware de error (Error-handling Middleware): Se utiliza para manejar errores que ocurren en la aplicación.
+
+y el next sirve para pasar el control al siguiente middleware en la pila.
+
+---------------------------------------------------------------->
+Clase 4: Introducción a bases de datos con MongoDB o Operaciones CRUD en MongoDB.
+---------------------------------------------------------------->
+
+MongoDB es una base de datos NoSQL que almacena datos en formato de documentos BSON (Binary JSON). Es escalable, flexible y fácil de usar, lo que la hace popular para aplicaciones web modernas.
+
+que características tiene json en su sintaxis:
+
+- Clave-valor: Los datos se representan como pares de clave-valor.
+- Estructura jerárquica: Los datos pueden anidarse en objetos y arreglos, lo que permite representar estructuras complejas.
+- Formato de texto: JSON es un formato de texto legible por humanos, lo que facilita su comprensión y edición.
+- Tipos de datos: JSON admite varios tipos de datos, incluidos cadenas, números, booleanos, objetos y arreglos.
+- Separadores: Los pares de clave-valor se separan por comas, y los objetos y arreglos se delimitan con llaves {} y corchetes [] respectivamente.
+- Comillas dobles: Las claves y las cadenas deben estar entre comillas dobles.
+
+ejemplo de json:
+{
+"id": "1",
+"titulo": "Aprendiendo Node.js",
+"canal": "Programacion Facil",
+"duracion": "10:30"
+}
+
+diferencias entre datos anidados y arreglos:
+{
+"id": "1",
+"titulo": "Aprendiendo Node.js",
+"canal": "Programacion Facil",
+"duracion": "10:30",
+"etiquetas": ["programacion", "javascript", "nodejs"], // arreglo
+"detalles": { // objeto anidado
+"descripcion": "Un curso completo de Node.js",
+"nivel": "intermedio"
+}
+}
+
+ejemplo de un objeto json:
+{
+"id": "1",
+"titulo": "Aprendiendo Node.js",
+"canal": "Programacion Facil",
+"duracion": "10:30"
+}
+
+como iniciar mongoDB en local desde la terminal:
+
+1. Abrir la terminal
+2. Navegar al directorio de instalación de MongoDB (por ejemplo, `cd /usr/local/bin` en macOS o Linux).
+3. Ejecutar el comando `mongod` para iniciar el servidor MongoDB.
+4. Abrir otra terminal y ejecutar el comando `mongo` para iniciar la shell de MongoDB.
+
+---------------------------------------------------------------->
+Clase 5: Mongoose: Modelado de datos y validaciones.
+---------------------------------------------------------------->
+
+la coleccion es un conjunto de documentos en MongoDB que comparten un esquema similar. Es equivalente a una tabla en bases de datos relacionales.
+
+un documento es una unidad de datos en MongoDB que se almacena en formato BSON (Binary JSON). Es equivalente a una fila en bases de datos relacionales.
+
+el esquema es una estructura que define la forma y las reglas de los documentos en una colección de MongoDB. Se utiliza para validar y organizar los datos.
+
+ejemplo de cada uno:
+
+Colección: videos
+
+Documentos:
+{
+"\_id": ObjectId("60c72b2f9b1e8a5f4c8e4d3a"),
+"titulo": "Aprendiendo Node.js",
+"canal": "Programacion Facil",
+"duracion": "10:30"
+}
+{
+"\_id": ObjectId("60c72b3f9b1e8a5f4c8e4d3b"),
+"titulo": "Introducción a Express.js",
+"canal": "Programacion Facil",
+"duracion": "15:45"
+}
+
+Esquema:
+const mongoose = require('mongoose');
+
+const videoSchema = new mongoose.Schema({
+titulo: { type: String, required: true },
+canal: { type: String, required: true },
+duracion: { type: String, required: true }
+});
+const Video = mongoose.model('Video', videoSchema);
+
+la carpeta models sirve para almacenar los modelos de datos en una aplicación Node.js con Mongoose. Los modelos definen la estructura y las reglas de los documentos en una colección de MongoDB.
+
+la diferencia entre modelo y equema es:
+
+- Esquema: Define la estructura y las reglas de los documentos en una colección de MongoDB.
+- Modelo: Es una representación de un esquema que se utiliza para interactuar con la colección de MongoDB, permitiendo realizar operaciones CRUD y consultas.
+
+para que sirve mongoose y express
+
+- Mongoose es una biblioteca de Node.js que proporciona una solución basada en esquemas para modelar los datos de la aplicación y facilitar la interacción con MongoDB.
+  Express es un framework web para Node.js que simplifica la creación de aplicaciones web y APIs, proporcionando herramientas para manejar rutas, solicitudes y respuestas HTTP.
+
+---------------------------------------------------------------->
+Clase 6: Autenticación con JWT en APIs REST.
+---------------------------------------------------------------->
+
+que es JWT
+JWT (JSON Web Token) es un estándar abierto para la transmisión segura de información entre partes como un objeto JSON. Se utiliza comúnmente para la autenticación y autorización en aplicaciones web y APIs. Un JWT consta de tres partes: encabezado, carga útil y firma. El encabezado especifica el algoritmo de firma y el tipo de token. La carga útil contiene los datos que se desean transmitir, como el ID de usuario y los permisos. La firma se utiliza para verificar la integridad del token y garantizar que no haya sido modificado.
+
+el proceso de autenticacion con JWT es:
+
+1. El usuario envía sus credenciales (nombre de usuario y contraseña) al servidor.
+2. El servidor verifica las credenciales y, si son válidas, genera un JWT que contiene la información del usuario y los permisos.
+3. El servidor envía el JWT al cliente.
+4. El cliente almacena el JWT (generalmente en el almacenamiento local o en una cookie) y lo incluye en el encabezado de autorización de las solicitudes subsecuentes al servidor.
+5. El servidor verifica el JWT en cada solicitud para asegurarse de que el usuario esté autenticado y autorizado para acceder al recurso solicitado.
+
+bearer token es un tipo de token de acceso que se utiliza en la autenticación basada en tokens. Se llama "bearer" porque el portador del token (el cliente) lo incluye en el encabezado de autorización de las solicitudes HTTP para acceder a recursos protegidos en el servidor. El formato del encabezado de autorización con un bearer token es el siguiente:
+Authorization: Bearer <token>
+
+---------------------------------------------------------------->
+Clase 7: Gestión de errores y logging en Express.
+---------------------------------------------------------------->
+
+---------------------------------------------------------------->
+Clase 8: Proyecto: API REST básica con Express y MongoDB.
+---------------------------------------------------------------->
+
+Proyecto: API REST básica con Express y MongoDB
+
+para jacer npm
+
+diagrama de secuencia a uml
+
+el modelo es el traductor entre expres que es en base a jabascript y el mongo que es en base a json

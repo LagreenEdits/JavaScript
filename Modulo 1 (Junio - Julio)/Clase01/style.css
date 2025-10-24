@@ -1,0 +1,21 @@
+body {
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    padding: 20px;
+}
+
+h1 {
+    color: #0066cc;
+}
+
+#consola {
+    background-color: #1e1e1e;
+    color: #00ff00;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: monospace;
+    max-height: 500px;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
