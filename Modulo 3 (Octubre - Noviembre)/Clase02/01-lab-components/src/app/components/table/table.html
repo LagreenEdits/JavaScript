@@ -1,0 +1,28 @@
+<h2>Lista de usuarios</h2>
+
+<table border="1" cellpadding="8" cellspacing="0"> 
+    
+    <!-- Encabezado de la tabla -->
+    <thead>
+        <tr>
+            <!-- Títulos de cada columna -->
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+        </tr>
+    </thead>
+
+    <!-- Cuerpo de la tabla -->
+    <tbody>
+        <!-- Iterar sobre cada usuario en la lista de usuarios -->
+        @for(usuario of usuarios;track usuario){
+            <tr>
+                <!-- Mostrar los datos del usuario en cada celda -->
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.correo }}</td>
+            </tr>
+        }
+    </tbody>
+
+</table>
