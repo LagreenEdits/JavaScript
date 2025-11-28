@@ -8,5 +8,5 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('01-lab-directivas-binding');
+  protected readonly title = signal('01-lab-directivas');
 }

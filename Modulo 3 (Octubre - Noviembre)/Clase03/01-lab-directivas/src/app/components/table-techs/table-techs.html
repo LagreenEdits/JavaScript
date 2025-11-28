@@ -1,0 +1,26 @@
+<div class="container mt-4">
+<h1 class="text-center mb-4">Lista de Tecnologías</h1>
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-dark">
+        <tr>
+            <th>Tecnología</th>  <!-- Columna para el nombre de la tecnología -->
+            <th>Tipo</th>         <!-- Columna para el tipo (Frontend, Backend, Base de Datos) -->
+        </tr>
+        </thead>
+
+        <tbody>
+            @for (tech of tecnologias; track tech ){
+                <tr [ngClass]="{
+                    'table-success': tech.tipo === 'Frontend',     
+                    'table-danger': tech.tipo === 'Backend',     
+                    'table-warning': tech.tipo === 'Base de Datos' 
+                    }">
+                        <td>{{ tech.nombre }}</td>
+                        <td>{{ tech.tipo }}</td>    
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>

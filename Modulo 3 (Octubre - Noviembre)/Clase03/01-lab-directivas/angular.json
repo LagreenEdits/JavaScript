@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "01-lab-directivas-binding": {
+    "01-lab-directivas": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -25,6 +25,7 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ]
           },
@@ -56,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "01-lab-directivas-binding:build:production"
+              "buildTarget": "01-lab-directivas:build:production"
             },
             "development": {
-              "buildTarget": "01-lab-directivas-binding:build:development"
+              "buildTarget": "01-lab-directivas:build:development"
             }
           },
           "defaultConfiguration": "development"
