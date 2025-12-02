@@ -1,29 +1,36 @@
 <nav class="navbar navbar-expand navbar-light bg-light px-3">
   <a class="navbar-brand fw-bold" routerLink="/home">Portal Cursos</a>
-  <ul class="navbar-nav ms-3">
-    <li class="nav-item">
-      <a class="nav-link"
-      routerLink="/home"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }">
-      Home
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"
-      routerLink="/cursos"
-      routerLinkActive="active">
-      Cursos
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"
-      routerLink="/acerca-de"
-      routerLinkActive="active">
-      Acerca de
-      </a>
-    </li>
-  </ul>
-</nav>
+    <ul class="navbar-nav ms-3">
+      <li class="nav-item">
+        <a class="nav-link"
+          routerLink="/home"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          Home
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+          routerLink="/cursos"
+          routerLinkActive="active">
+          Cursos
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+          routerLink="/acerca-de"
+          routerLinkActive="active">
+          Acerca de
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="container mt-4">
+    <router-outlet></router-outlet>
+  </div>
+  <footer class="bg-light text-center text-lg-start mt-4 py-3">
+    <div class="text-center p-3">
+      © 2025 Portal Cursos
+    </div>
+</footer>
 
-<router-outlet />
