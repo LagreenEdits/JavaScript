@@ -1,0 +1,31 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3> Lista de Tecnologías </h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (tech of tecnologias; track tech) {
+                        <tr
+                        [ngClass]="
+                            {
+                                'table-success': tech.tipo === 'Frontend',
+                                'table-primary': tech.tipo === 'Backend',
+                                'table-warning': tech.tipo === 'Base de Datos'
+                            }">
+                            <td>{{ tech.nombre }}</td>
+                            <td>{{ tech.tipo }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
