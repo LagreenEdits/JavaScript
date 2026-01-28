@@ -1,0 +1,163 @@
+/* =========================
+   RESET BÁSICO
+   ========================= */
+
+/* Elimina márgenes y padding por defecto del navegador
+   y hace que el tamaño de los elementos incluya padding y borde */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* =========================
+   LAYOUT PRINCIPAL
+   ========================= */
+
+/* Asegura que el documento ocupe el 100% de la altura de la ventana */
+html, body {
+    height: 100%;
+}
+
+/* Configura el layout principal usando Flexbox
+   para mantener header arriba y footer abajo */
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+
+/* Estilos del encabezado superior */
+header {
+    background: #1e293b;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+/* =========================
+   MAIN (CONTENIDO CENTRAL)
+   ========================= */
+
+/* main ocupa todo el espacio disponible entre header y footer */
+main {
+    flex: 1; /* Clave para el footer sticky */
+    display: flex;
+    justify-content: center;
+    padding: 30px 15px;
+}
+
+/* =========================
+   FOOTER
+   ========================= */
+
+/* Estilos del pie de página */
+footer {
+    background: #1e293b;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
+/* =========================
+   CONTENEDOR PRINCIPAL
+   ========================= */
+
+/* Caja blanca donde vive la app */
+.container {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* =========================
+   TÍTULOS
+   ========================= */
+
+/* Centra el título principal */
+h1 {
+    text-align: center;
+}
+
+/* =========================
+   ÁREA DE ENTRADA
+   ========================= */
+
+/* Contenedor del input y botón */
+.input-area {
+    display: flex;
+    gap: 10px;
+}
+
+/* Input de texto para ingresar tareas */
+input {
+    flex: 1; /* Ocupa todo el espacio disponible */
+    padding: 8px;
+}
+
+/* Botón genérico */
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+/* =========================
+   LISTA DE TAREAS
+   ========================= */
+
+/* Elimina viñetas y espacios por defecto */
+ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+/* Cada tarea individual */
+li {
+    display: flex;
+    flex-direction: column; /* Texto arriba, botones abajo */
+    gap: 8px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* =========================
+   TEXTO DE LA TAREA
+   ========================= */
+
+/* Permite que el texto largo haga salto de línea */
+.task-text {
+    word-break: break-word;
+}
+
+/* Estado de tarea completada */
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}
+
+/* =========================
+   BOTONES
+   ========================= */
+
+/* Contenedor de botones */
+.task-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Cursor tipo botón para los iconos */
+.complete-btn,
+.delete-btn {
+    cursor: pointer;
+}

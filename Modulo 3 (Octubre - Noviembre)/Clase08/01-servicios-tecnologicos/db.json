@@ -1,0 +1,83 @@
+{
+  "usuarios": [
+    {
+      "id": "u1",
+      "nombre": "Administrador General",
+      "email": "admin@iconotech.com",
+      "password": "admin123",
+      "rol": "ADMIN"
+    },
+    {
+      "id": "u2",
+      "nombre": "Administrador Coordinador",
+      "email": "admincoordinador@iconotech.com",
+      "password": "user123",
+      "rol": "COORDINADOR"
+    }
+  ],
+  "servicios": [
+    {
+      "id": "s1",
+      "nombre": "Desarrollo de Aplicaciones Web",
+      "descripcion": "Construcción de aplicaciones web modernas, responsivas y escalables.",
+      "categoria": "Desarrollo",
+      "precioReferencia": 3500000,
+      "duracionEstimada": "4 semanas",
+      "estado": "ACTIVO"
+    },
+    {
+      "id": "s2",
+      "nombre": "Desarrollo de Aplicaciones Móviles",
+      "descripcion": "Creación de apps móviles nativas o híbridas para Android y iOS.",
+      "categoria": "Desarrollo",
+      "precioReferencia": 5000000,
+      "duracionEstimada": "6 semanas",
+      "estado": "ACTIVO"
+    },
+    {
+      "id": "s3",
+      "nombre": "Consultoría en Arquitectura de Software",
+      "descripcion": "Análisis y diseño de arquitecturas robustas, seguras y escalables.",
+      "categoria": "Consultoría",
+      "precioReferencia": 2500000,
+      "duracionEstimada": "8 horas",
+      "estado": "ACTIVO"
+    },
+    {
+      "id": "s4",
+      "nombre": "Integración de Sistemas y APIs",
+      "descripcion": "Conexión de sistemas mediante APIs REST, microservicios y middleware.",
+      "categoria": "Desarrollo",
+      "precioReferencia": 4000000,
+      "duracionEstimada": "3 semanas",
+      "estado": "ACTIVO"
+    },
+    {
+      "id": "s5",
+      "nombre": "Capacitación en Pruebas de Software",
+      "descripcion": "Taller práctico sobre pruebas de caja negra, blanca y automatización básica.",
+      "categoria": "Capacitación",
+      "precioReferencia": 900000,
+      "duracionEstimada": "12 horas",
+      "estado": "INACTIVO"
+    },
+    {
+      "id": "S6",
+      "nombre": "Ejemplo6",
+      "descripcion": "Descripcion del Servicio6",
+      "categoria": "Consultoria",
+      "precioReferencia": 25,
+      "duracionEstimada": "5",
+      "estado": "ACTIVO"
+    },
+    {
+      "id": "S6",
+      "nombre": "Ejemplo6",
+      "descripcion": "Descripcion",
+      "categoria": "Capacitación",
+      "precioReferencia": 100,
+      "duracionEstimada": "5 horas",
+      "estado": "ACTIVO"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+<!doctype html>
+<!-- Define el tipo de documento como HTML5 -->
+<html lang="en">
+  <head>
+    <!-- Codificación de caracteres UTF-8 -->
+    <meta charset="UTF-8" />
+
+    <!-- Hace que el sitio sea responsive en móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Compatibilidad con navegadores antiguos (IE) -->
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <!-- Título que aparece en la pestaña del navegador -->
+    <title>App de tareas</title>
+
+    <!-- Descripción del sitio (SEO) -->
+    <meta
+      name="description"
+      content="Aplicación web para gestionar una lista de tareas."
+    />
+
+    <!-- Autor del sitio -->
+    <meta name="author" content="Juan David Laverde Ochoa" />
+
+    <!-- Ícono del sitio (favicon) -->
+    <link rel="icon" href="prueba1.png" type="png" />
+
+    <!-- Enlace al archivo de estilos -->
+    <link rel="stylesheet" href="style.css" type="text/css" />
+
+    <!-- Enlace al archivo JavaScript
+         defer asegura que se ejecute después de cargar el HTML -->
+    <script src="script.js" defer></script>
+  </head>
+
+  <body>
+    <!-- =========================
+         HEADER
+         ========================= -->
+    <header>
+      <nav>
+        <!-- Título principal de la aplicación -->
+        <h1>Lista de Tareas Interactiva</h1>
+      </nav>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+         ========================= -->
+    <main>
+      <div class="container">
+        <!-- Subtítulo de la sección -->
+        <h2>Mis Tareas</h2>
+
+        <!-- Área de entrada para nuevas tareas -->
+        <div class="input-area">
+          <!-- Input donde el usuario escribe la tarea -->
+          <input
+            type="text"
+            id="taskInput"
+            placeholder="Escribe una tarea..."
+          />
+
+          <!-- Botón que agrega la tarea -->
+          <button id="addTaskBtn">Agregar</button>
+        </div>
+
+        <!-- Lista donde se insertan las tareas dinámicamente -->
+        <ul id="taskList">
+          <!-- Las tareas se agregarán aquí mediante JavaScript -->
+        </ul>
+      </div>
+    </main>
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+    <footer>
+      <p>
+        Aplicación de lista de tareas simple creada con HTML, CSS y JavaScript.
+      </p>
+    </footer>
+  </body>
+</html>
