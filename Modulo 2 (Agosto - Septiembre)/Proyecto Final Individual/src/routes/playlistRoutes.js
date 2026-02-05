@@ -16,18 +16,19 @@ const {
   validateDeletePlaylist,
   validateVotePlaylist
 } = require("../middlewares/playlistValidator");
+const { validateDataBase } = require ('../middlewares/dataBaseValidator')
 
 const router = express.Router();
 
 //Playlists CRUD
-router.post("/", protect, validateCreatePlaylist, createPlaylist);
-router.get("/", protect, getPlaylists);
-router.get("/:id", protect, validateGetPlaylistById, getPlaylistById);
-router.put("/:id", protect, validateUpdatePlaylist, updatePlaylist);
-router.delete("/:id", protect, validateDeletePlaylist, deletePlaylist);
+router.post("/", validateDataBase, protect, validateCreatePlaylist, createPlaylist);
+router.get("/", validateDataBase, protect, getPlaylists);
+router.get("/:id", validateDataBase, protect, validateGetPlaylistById, getPlaylistById);
+router.put("/:id", validateDataBase, protect, validateUpdatePlaylist, updatePlaylist);
+router.delete("/:id", validateDataBase, protect, validateDeletePlaylist, deletePlaylist);
 
 //Batallas
-router.post("/:id/vote", protect, validateVotePlaylist, votePlaylist);
-router.get("/ranking/top", protect, getRanking);
+router.post("/:id/vote", validateDataBase, protect, validateVotePlaylist, votePlaylist);
+router.get("/ranking/top", validateDataBase, protect, getRanking);
 
 module.exports = router;

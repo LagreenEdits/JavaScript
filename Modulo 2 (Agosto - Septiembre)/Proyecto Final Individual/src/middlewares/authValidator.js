@@ -1,10 +1,11 @@
 const AppError = require("../utils/errorHandler");
 
 // Middleware para validar datos de registro
-const validateRegister = (req, res, next) => {
+exports.validateRegister = (req, res, next) => {
     const { username, email, password } = req.body;
 
     try {
+        
         if (!username) throw new AppError("El nombre es obligatorio", 400);
         if (username.length < 2) throw new AppError("El nombre debe tener al menos 2 caracteres", 400);
 
@@ -21,7 +22,7 @@ const validateRegister = (req, res, next) => {
     }
 };
 
-const validateLogin = (req, res, next) => {
+exports.validateLogin = (req, res, next) => {
     const { email, password } = req.body;
 
     try {
@@ -36,5 +37,3 @@ const validateLogin = (req, res, next) => {
         next(error);
     }
 };
-
-module.exports = { validateRegister, validateLogin };
