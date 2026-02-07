@@ -19,10 +19,4 @@ export class ComponentIni {
     { nombre: 'NodeJS', version: '18' }, 
     { nombre: 'MongoDB', version: '6' } 
     ];
-
-
-
-
-
-
 }
