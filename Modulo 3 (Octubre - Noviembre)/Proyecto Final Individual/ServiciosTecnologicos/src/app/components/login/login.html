@@ -1,0 +1,57 @@
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-center mb-4">Iniciar Sesión</h3>
+                    <p class="text-muted text-center mb-4">IconoTech Services</p>
+
+                    @if (error) {
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    }
+
+                    @if (mensajeExito) {
+                    <div class="alert alert-success" role="alert">
+                        {{ mensajeExito }}
+                    </div>
+                    }
+
+                    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" formControlName="email"
+                                [class.is-invalid]="
+                  loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+                " placeholder="correo@ejemplo.com" />
+                            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+                            <div class="invalid-feedback">Ingresa un email válido.</div>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" formControlName="password"
+                                [class.is-invalid]="
+                  loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+                " placeholder="Mínimo 6 caracteres" />
+                            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                            <div class="invalid-feedback">La contraseña debe tener al menos 6 caracteres.</div>
+                            }
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+                            @if (loading) {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Iniciando sesión...
+                            } @else {
+                            Iniciar Sesión
+                            }
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

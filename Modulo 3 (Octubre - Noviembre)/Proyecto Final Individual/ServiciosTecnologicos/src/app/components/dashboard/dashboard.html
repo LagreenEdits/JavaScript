@@ -1,0 +1,114 @@
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-4">Crear Nuevo Servicio</h3>
+
+                    @if (error) {
+                    <div class="alert alert-danger" role="alert">{{ error }}</div>
+                    }
+
+                    @if (mensajeExito) {
+                    <div class="alert alert-success" role="alert">{{ mensajeExito }}</div>
+                    }
+
+                    <form [formGroup]="servicioForm" (ngSubmit)="onSubmit()">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id" class="form-label">ID</label>
+                                <input type="text" class="form-control" id="id" formControlName="id"
+                                    [class.is-invalid]="servicioForm.get('id')?.invalid && servicioForm.get('id')?.touched"
+                                    placeholder="s1, s2, etc.">
+                                @if (servicioForm.get('id')?.invalid && servicioForm.get('id')?.touched) {
+                                <div class="invalid-feedback">El ID es obligatorio.</div>
+                                }
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" formControlName="nombre"
+                                    [class.is-invalid]="servicioForm.get('nombre')?.invalid && servicioForm.get('nombre')?.touched"
+                                    placeholder="Nombre del servicio">
+                                @if (servicioForm.get('nombre')?.invalid && servicioForm.get('nombre')?.touched) {
+                                <div class="invalid-feedback">El nombre debe tener al menos 3 caracteres.</div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" formControlName="descripcion" rows="3"
+                                [class.is-invalid]="servicioForm.get('descripcion')?.invalid && servicioForm.get('descripcion')?.touched"
+                                placeholder="Descripción del servicio"></textarea>
+                            @if (servicioForm.get('descripcion')?.invalid && servicioForm.get('descripcion')?.touched) {
+                            <div class="invalid-feedback">La descripción es obligatoria.</div>
+                            }
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="categoria" class="form-label">Categoría</label>
+                                <select class="form-select" id="categoria" formControlName="categoria"
+                                    [class.is-invalid]="servicioForm.get('categoria')?.invalid && servicioForm.get('categoria')?.touched">
+                                    <option value="">Selecciona una categoría</option>
+                                    <option value="Capacitación">Capacitación</option>
+                                    <option value="Consultoría">Consultoría</option>
+                                    <option value="Desarrollo">Desarrollo</option>
+                                    <option value="Soporte Técnico">Soporte Técnico</option>
+                                    <option value="Seguridad">Seguridad</option>
+                                </select>
+                                @if (servicioForm.get('categoria')?.invalid && servicioForm.get('categoria')?.touched) {
+                                <div class="invalid-feedback">Selecciona una categoría válida.</div>
+                                }
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="precioReferencia" class="form-label">Precio Referencia</label>
+                                <input type="number" class="form-control" id="precioReferencia"
+                                    formControlName="precioReferencia"
+                                    [class.is-invalid]="servicioForm.get('precioReferencia')?.invalid && servicioForm.get('precioReferencia')?.touched"
+                                    placeholder="0">
+                                @if (servicioForm.get('precioReferencia')?.invalid &&
+                                servicioForm.get('precioReferencia')?.touched) {
+                                <div class="invalid-feedback">El precio debe ser un valor positivo.</div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="duracionEstimada" class="form-label">Duración Estimada</label>
+                                <input type="text" class="form-control" id="duracionEstimada"
+                                    formControlName="duracionEstimada"
+                                    [class.is-invalid]="servicioForm.get('duracionEstimada')?.invalid && servicioForm.get('duracionEstimada')?.touched"
+                                    placeholder="Ej: 12 horas">
+                                @if (servicioForm.get('duracionEstimada')?.invalid &&
+                                servicioForm.get('duracionEstimada')?.touched) {
+                                <div class="invalid-feedback">Indica la duración estimada.</div>
+                                }
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="estado" class="form-label">Estado</label>
+                                <select class="form-select" id="estado" formControlName="estado">
+                                    <option value="ACTIVO">ACTIVO</option>
+                                    <option value="INACTIVO">INACTIVO</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+                            @if (loading) {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Creando servicio...
+                            } @else {
+                            Crear Servicio
+                            }
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

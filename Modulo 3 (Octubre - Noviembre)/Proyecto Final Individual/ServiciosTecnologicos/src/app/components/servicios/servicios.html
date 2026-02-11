@@ -1,0 +1,47 @@
+<div class="container my-5">
+    <h2 class="mb-4">Nuestros Servicios</h2>
+
+    @if (loading) {
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+    }
+
+    @if (error) {
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    }
+
+    <div class="row g-4">
+        @for (servicio of servicios; track servicio.id) {
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ servicio.nombre }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ servicio.categoria }}</h6>
+                    <p class="card-text">{{ servicio.descripcion }}</p>
+                    <ul class="list-unstyled">
+                        <li><strong>Precio:</strong> ${{ servicio.precioReferencia | number }}</li>
+                        <li><strong>Duración:</strong> {{ servicio.duracionEstimada }}</li>
+                        <li>
+                            <span class="badge"
+                                [ngClass]="servicio.estado === 'ACTIVO' ? 'bg-success' : 'bg-secondary'">
+                                {{ servicio.estado }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+
+    @if (!loading && servicios.length === 0 && !error) {
+    <div class="alert alert-info">
+        No hay servicios disponibles en este momento.
+    </div>
+    }
+</div>
