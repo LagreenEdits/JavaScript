@@ -15,6 +15,8 @@ export class Dashboard implements OnInit {
   loading: boolean = false;
   error: string = '';
   mensajeExito: string = '';
+  servicios: Servicio[] = [];          // ← lista de servicios
+  loadingEliminar: string = '';        // ← ID del servicio que se está eliminando
 
   constructor(
     private fb: FormBuilder,
@@ -31,10 +33,20 @@ export class Dashboard implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.cargarServicios();
+  }
+
+  cargarServicios(): void {
+    this.serviciosTechService.getServicios().subscribe({
+      next: (data) => this.servicios = data,
+      error: (err) => console.error('Error cargando servicios', err)
+    });
+  }
 
   onSubmit(): void {
     if (this.servicioForm.invalid) {
+      this.servicioForm.markAllAsTouched();
       this.error = 'Por favor, completa todos los campos correctamente.';
       return;
     }
@@ -50,10 +62,32 @@ export class Dashboard implements OnInit {
         this.loading = false;
         this.mensajeExito = `Servicio "${servicio.nombre}" creado exitosamente.`;
         this.servicioForm.reset({ estado: 'ACTIVO' });
+        this.cargarServicios();         // ← refresca la lista
       },
       error: (err) => {
         this.loading = false;
         this.error = 'Error al crear el servicio. Intenta de nuevo.';
+        console.error(err);
+      }
+    });
+  }
+
+  eliminarServicio(id: string): void {
+    if (!confirm('¿Estás seguro de eliminar este servicio?')) return;
+
+    this.loadingEliminar = id;
+    this.error = '';
+    this.mensajeExito = '';
+
+    this.serviciosTechService.deleteServicio(id).subscribe({
+      next: () => {
+        this.loadingEliminar = '';
+        this.mensajeExito = 'Servicio eliminado correctamente.';
+        this.cargarServicios();         // ← refresca la lista
+      },
+      error: (err) => {
+        this.loadingEliminar = '';
+        this.error = 'Error al eliminar el servicio.';
         console.error(err);
       }
     });

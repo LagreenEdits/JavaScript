@@ -3,7 +3,7 @@
     {
       "id": "u1",
       "nombre": "Administrador General",
-      "email": "admin@iconotech.com",
+      "email": "juandavidlaverde1441@gmail.com",
       "password": "admin123",
       "rol": "ADMIN"
     },
@@ -62,30 +62,30 @@
       "estado": "INACTIVO"
     },
     {
-      "id": "S6",
-      "nombre": "Ejemplo",
-      "descripcion": "Descripcion del Servicio",
-      "categoria": "Consultoria",
-      "precioReferencia": 25,
-      "duracionEstimada": "5",
-      "estado": "ACTIVO"
-    },
-    {
-      "id": "S8",
-      "nombre": "Ejemplo",
-      "descripcion": "Descripcion",
-      "categoria": "Capacitación",
-      "precioReferencia": 100,
-      "duracionEstimada": "5 horas",
+      "id": "s6",
+      "nombre": "Mantenimiento Preventivo y Correctivo",
+      "descripcion": "Soporte técnico especializado para asegurar la operatividad continua de plataformas existentes.",
+      "categoria": "Soporte",
+      "precioReferencia": 1200000,
+      "duracionEstimada": "Mensual",
       "estado": "ACTIVO"
     },
     {
       "id": "s7",
-      "nombre": "fuerza",
-      "descripcion": "mucha fuerza",
-      "categoria": "Desarrollo",
-      "precioReferencia": 0,
-      "duracionEstimada": "40",
+      "nombre": "Auditoría de Seguridad Informática",
+      "descripcion": "Análisis exhaustivo de vulnerabilidades y pruebas de penetración para proteger activos digitales.",
+      "categoria": "Consultoría",
+      "precioReferencia": 3200000,
+      "duracionEstimada": "2 semanas",
+      "estado": "ACTIVO"
+    },
+    {
+      "id": "s8",
+      "nombre": "Taller de Clean Code y SOLID",
+      "descripcion": "Capacitación avanzada para equipos de desarrollo enfocada en código limpio y arquitectura mantenible.",
+      "categoria": "Capacitación",
+      "precioReferencia": 1500000,
+      "duracionEstimada": "16 horas",
       "estado": "ACTIVO"
     }
   ]

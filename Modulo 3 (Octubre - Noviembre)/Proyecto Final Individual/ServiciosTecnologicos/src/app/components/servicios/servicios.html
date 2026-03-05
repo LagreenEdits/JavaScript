@@ -27,8 +27,7 @@
                         <li><strong>Precio:</strong> ${{ servicio.precioReferencia | number }}</li>
                         <li><strong>Duración:</strong> {{ servicio.duracionEstimada }}</li>
                         <li>
-                            <span class="badge"
-                                [ngClass]="servicio.estado === 'ACTIVO' ? 'bg-success' : 'bg-secondary'">
+                            <span class="badge" [ngClass]="servicio.estado === 'ACTIVO' ? 'bg-success' : 'bg-danger'">
                                 {{ servicio.estado }}
                             </span>
                         </li>
