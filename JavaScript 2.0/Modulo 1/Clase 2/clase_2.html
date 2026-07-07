@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 2 — Algoritmos, Tipado y Fundamentos de JavaScript</title>
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/jetbrains-mono/2.304/JetBrainsMono.css');
+
+  :root{
+    --bg: #12151a;
+    --bg-alt: #181c23;
+    --surface: #1d222b;
+    --surface-hi: #242a35;
+    --line: #2a303b;
+    --text: #e7e4da;
+    --text-dim: #93998f;
+    --amber: #e8a33d;
+    --amber-dim: #a8763a;
+    --teal: #5fb3ad;
+    --red: #d97a6c;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Menlo, monospace;
+    --sans: 'IBM Plex Sans', Segoe UI, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,163,61,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(95,179,173,0.05), transparent 60%);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height:100vh;
+  }
+
+  /* Corner tag */
+  .corner-tag{
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--amber-dim);
+    color: var(--amber);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    padding: 7px 12px;
+    border-radius: 4px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  }
+  .corner-tag::before{
+    content: "● ";
+    color: var(--teal);
+  }
+
+  /* Terminal chrome header */
+  .term-bar{
+    max-width: 920px;
+    margin: 48px auto 0;
+    padding: 0 20px;
+  }
+  .term-window{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px 10px 0 0;
+    overflow:hidden;
+  }
+  .term-titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 10px 14px;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--line);
+  }
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.red{ background:#e0645a; }
+  .dot.yellow{ background:#e0b25a; }
+  .dot.green{ background:#5cbf7a; }
+  .term-title{
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .term-body{
+    padding: 34px 36px 30px;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--teal);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  h1.hero-title{
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.15;
+    margin: 10px 0 6px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .hero-title .prompt{ color: var(--amber); }
+  .hero-sub{
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 60ch;
+    margin: 10px 0 0;
+  }
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap: 10px 22px;
+    margin-top: 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .meta-row b{ color: var(--text); font-weight: 600; }
+
+  /* Table of contents */
+  nav.toc{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 22px 20px 0;
+  }
+  .toc-inner{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0 0 10px 10px;
+    padding: 20px 24px 22px;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 20px;
+  }
+  @media (max-width: 640px){ .toc-inner{ grid-template-columns: 1fr; } }
+  .toc-inner a{
+    color: var(--text-dim);
+    text-decoration:none;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    display:flex;
+    gap: 8px;
+  }
+  .toc-inner a:hover{ background: var(--surface-hi); color: var(--amber); }
+  .toc-inner a span.n{ color: var(--amber-dim); }
+
+  main{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  section.block{
+    margin-bottom: 44px;
+    scroll-margin-top: 30px;
+  }
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .block-head .idx{
+    font-family: var(--mono);
+    color: var(--amber);
+    font-size: 14px;
+  }
+  .block-head h2{
+    font-family: var(--mono);
+    font-size: 19px;
+    margin: 0;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  p{ color: var(--text); font-size: 15px; }
+  p.dim{ color: var(--text-dim); }
+
+  .subsection{
+    margin-bottom: 26px;
+    padding-left: 16px;
+    border-left: 2px solid var(--line);
+  }
+  .subsection h3{
+    font-family: var(--mono);
+    font-size: 15.5px;
+    color: var(--teal);
+    margin: 0 0 8px;
+  }
+
+  code, pre code{
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  code.inline{
+    background: var(--surface-hi);
+    color: var(--amber);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+  pre{
+    background: #0e1116;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+  pre code{ color: #c9d6d8; }
+  pre .cmt{ color: var(--text-dim); }
+  pre .flag{ color: var(--amber); }
+  pre .ph{ color: var(--teal); }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td{
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  th{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: var(--surface-hi);
+  }
+  td b{ color: var(--text); }
+  tr:hover td{ background: rgba(255,255,255,0.02); }
+
+  .callout{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--teal);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 14.5px;
+  }
+  .callout.warn{ border-left-color: var(--red); }
+  .callout .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    display:block;
+    margin-bottom: 6px;
+  }
+
+  .metaphor-grid{
+    display: grid;
+    gap: 14px;
+  }
+  .metaphor-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .metaphor-card .label{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display:block;
+    margin-bottom: 8px;
+  }
+
+  ul.errors{ list-style: none; padding: 0; margin: 0; }
+  ul.errors li{
+    position: relative;
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  ul.errors li::before{
+    content: "✕";
+    position:absolute; left: 0; top: 10px;
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  ul.errors li:last-child{ border-bottom: none; }
+
+  .quiz-list{ list-style: none; padding: 0; margin: 0; counter-reset: q; }
+  .quiz-list li{
+    counter-increment: q;
+    padding: 12px 14px 12px 44px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+  }
+  .quiz-list li::before{
+    content: counter(q, decimal-leading-zero);
+    position: absolute;
+    left: 12px; top: 12px;
+    font-family: var(--mono);
+    color: var(--amber-dim);
+    font-size: 13px;
+  }
+
+  .check-list{ list-style:none; padding:0; margin:0; }
+  .check-list li{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .check-list li:last-child{ border-bottom:none; }
+  .check-list input[type=checkbox]{
+    appearance: none;
+    -webkit-appearance:none;
+    width: 18px; height: 18px;
+    min-width:18px;
+    border: 1px solid var(--amber-dim);
+    border-radius: 4px;
+    background: var(--bg-alt);
+    cursor:pointer;
+    margin-top: 2px;
+    position: relative;
+  }
+  .check-list input[type=checkbox]:checked{
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+  .check-list input[type=checkbox]:checked::after{
+    content:"✓";
+    position:absolute; left:2px; top:-2px;
+    color: #12151a;
+    font-size: 13px;
+    font-weight:700;
+  }
+  .check-list label{ cursor:pointer; }
+  .check-list input[type=checkbox]:checked + label{
+    color: var(--text-dim);
+    text-decoration: line-through;
+  }
+
+  .glossary-term{ color: var(--amber); font-family: var(--mono); font-size: 13.5px; }
+
+  footer{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: var(--mono);
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  footer a{ color: var(--teal); text-decoration:none; }
+
+  .progress-note{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  @media (max-width: 560px){
+    .term-body{ padding: 24px 20px 22px; }
+    main{ padding: 30px 16px 80px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="corner-tag">JS-M1-C2</div>
+
+  <div class="term-bar">
+    <div class="term-window">
+      <div class="term-titlebar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <div class="term-title">clase_2.md — ~/ideade/js-mean-mastery/m1-u1</div>
+      </div>
+      <div class="term-body">
+        <span class="eyebrow">JavaScript MEAN Mastery · Módulo 1 · Unidad 1</span>
+        <h1 class="hero-title"><span class="prompt">$</span> Algoritmos, Tipado y Fundamentos de JavaScript</h1>
+        <p class="hero-sub">Guía de estudio completa de la Clase 2 — MongoDB Atlas/Compass, pensamiento algorítmico, tipado en JS/Java/TS, variables, tipos de datos, operadores y funciones.</p>
+        <div class="meta-row">
+          <span>Formador: <b>Steven Zuluaga Cortés</b></span>
+          <span>Duración: <b>3 horas</b></span>
+          <span>Nivel: <b>Junior</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-inner">
+      <a href="#s1"><span class="n">01</span> Índice de subtemas</a>
+      <a href="#s2"><span class="n">02</span> Explicación por subtema</a>
+      <a href="#s3"><span class="n">03</span> Glosario de conceptos</a>
+      <a href="#s4"><span class="n">04</span> ¿Para qué sirve?</a>
+      <a href="#s5"><span class="n">05</span> Ejemplos abstractos</a>
+      <a href="#s6"><span class="n">06</span> Excepciones y casos especiales</a>
+      <a href="#s7"><span class="n">07</span> Metáforas visuales</a>
+      <a href="#s8"><span class="n">08</span> Errores típicos</a>
+      <a href="#s9"><span class="n">09</span> Autoevaluación</a>
+      <a href="#s10"><span class="n">10</span> Checklist final</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <section class="block" id="s1">
+      <div class="block-head"><span class="idx">01</span><h2>Índice de subtemas</h2></div>
+      <ol style="color:var(--text); font-size:15px; padding-left:22px;">
+        <li>MongoDB Atlas: creación de cluster, usuario de base de datos y acceso de red</li>
+        <li>MongoDB Compass: instalación y conexión al cluster</li>
+        <li>Qué es un algoritmo y el patrón Entrada → Proceso → Salida</li>
+        <li>Características de un buen algoritmo</li>
+        <li>Algoritmos en la vida cotidiana (casos reales)</li>
+        <li>Tipado débil (JavaScript) vs tipado fuerte (Java) vs TypeScript</li>
+        <li>Historia de JavaScript</li>
+        <li>Variables: <code class="inline">var</code>, <code class="inline">let</code>, <code class="inline">const</code> y scope de bloque</li>
+        <li>Tipos de datos primitivos y de referencia</li>
+        <li>Operadores: aritméticos, asignación, comparación, lógicos, incremento/decremento</li>
+        <li>Funciones: declaración, expresión, arrow function, parámetros por defecto y rest</li>
+        <li>Funciones con y sin retorno explícito</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s2">
+      <div class="block-head"><span class="idx">02</span><h2>Explicación detallada por subtema</h2></div>
+
+      <div class="subsection">
+        <h3>2.1 · MongoDB Atlas — cluster, usuario y acceso de red</h3>
+        <p>MongoDB Atlas es la plataforma en la nube oficial de MongoDB. El flujo completo para dejar un cluster listo para usarse desde código:</p>
+        <p><b>1. Crear cuenta:</b> registro con correo, contraseña, verificación por email.<br>
+        <b>2. Crear un Deployment:</b> se elige la opción <b>M0 Free</b> (capa gratuita para desarrollo), un proveedor de nube (AWS, Azure o GCP) y una región cercana. El cluster tarda 2-3 minutos en aprovisionarse.<br>
+        <b>3. Database Access:</b> se crea un <b>usuario de base de datos</b> (usuario + contraseña) — distinto de tu cuenta de Atlas, es la credencial que usará tu aplicación para conectarse.<br>
+        <b>4. Network Access:</b> se añade la IP desde la que te vas a conectar, o se permite <code class="inline">0.0.0.0/0</code> (cualquier IP) para facilitar el desarrollo — en producción esto se restringe.<br>
+        <b>5. Connect → Drivers → Node.js:</b> Atlas genera una URI de conexión lista para copiar, donde solo hay que reemplazar <code class="inline">&lt;username&gt;</code> y <code class="inline">&lt;password&gt;</code>.</p>
+        <pre><code>mongodb+srv://<span class="ph">usuario</span>:<span class="ph">contraseña</span>@cluster.mongodb.net/miBaseDatos?retryWrites=true&w=majority</code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.2 · MongoDB Compass</h3>
+        <p>Compass es el cliente <b>gráfico</b> oficial de MongoDB: permite ver bases de datos, colecciones y documentos sin escribir comandos.</p>
+        <p class="dim">Flujo: descargar e instalar según el sistema operativo → abrir Compass → "New Connection" → pegar la URI completa (la misma que usarías en el código) → Connect.</p>
+        <p>Con Compass puedes navegar visualmente: base de datos → colección → documentos, y aplicar filtros o ver estadísticas — útil para verificar que tus datos se estén guardando bien sin necesidad de imprimir todo por consola.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.3 · Qué es un algoritmo</h3>
+        <p>Un algoritmo es un <b>conjunto ordenado y finito de pasos</b> que resuelve un problema o alcanza un objetivo. Todo algoritmo sigue el patrón:</p>
+        <pre><code>ENTRADA → PROCESO → SALIDA</code></pre>
+        <p class="dim">Ejemplo mínimo: calcular el promedio de 7, 8 y 9 → sumar (24) → dividir entre 3 → salida: 8.</p>
+        <p>Este patrón (a veces llamado <b>EPS</b>: Entrada, Proceso, Salida) es la forma más básica de pensar cualquier función que programes: qué recibe, qué hace con eso, y qué entrega al final.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.4 · Características de un buen algoritmo</h3>
+        <table>
+          <tr><th>Característica</th><th>Qué significa</th></tr>
+          <tr><td><b>Precisión</b></td><td>Cada paso es claro, sin ambigüedad</td></tr>
+          <tr><td><b>Finitud</b></td><td>Termina en un número finito de pasos (no se cuelga para siempre)</td></tr>
+          <tr><td><b>Efectividad</b></td><td>Cada operación es realmente ejecutable</td></tr>
+          <tr><td><b>Generalidad</b></td><td>Resuelve el problema para cualquier entrada válida, no solo un caso puntual</td></tr>
+          <tr><td><b>Eficiencia</b></td><td>Usa pocos recursos de tiempo y memoria</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h3>2.5 · Algoritmos en la vida cotidiana</h3>
+        <p>El patrón Entrada → Proceso → Salida aparece en sistemas que usas todos los días:</p>
+        <div class="callout">
+          <span class="tag">GPS</span>
+          ubicación + destino → calcula rutas → entrega ruta optimizada
+        </div>
+        <div class="callout">
+          <span class="tag">Login</span>
+          usuario + contraseña → verifica y compara → acceso permitido/denegado
+        </div>
+        <div class="callout">
+          <span class="tag">Recomendaciones (Netflix, Amazon)</span>
+          historial → analiza patrones → lista de sugerencias
+        </div>
+        <div class="callout">
+          <span class="tag">Ordenamiento</span>
+          lista desordenada → compara e intercambia → lista ordenada
+        </div>
+        <div class="callout">
+          <span class="tag">Diagnóstico médico asistido</span>
+          síntomas → compara con base de datos → posible diagnóstico
+        </div>
+        <p class="dim">Ver estos ejemplos ayuda a notar que "algoritmo" no es algo abstracto de matemáticas — es literalmente cualquier función que escribas en este curso.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.6 · Tipado: JavaScript vs Java vs TypeScript</h3>
+        <p><b>JavaScript — débilmente tipado (dinámico):</b> una misma variable puede cambiar de tipo en tiempo de ejecución, y el tipo no se declara de antemano.</p>
+        <pre><code><span class="cmt">// number</span>
+let variable = 10;
+console.log(typeof variable); <span class="cmt">// "number"</span>
+
+<span class="cmt">// ahora string</span>
+variable = "Hola";
+console.log(typeof variable); <span class="cmt">// "string"</span>
+
+<span class="cmt">// coerción automática</span>
+let resultado = 5 + "5";
+console.log(resultado); <span class="cmt">// "55"</span></code></pre>
+
+        <p><b>Java — fuertemente tipado (estático):</b> el tipo se declara y se fija; se verifica en tiempo de <b>compilación</b>, antes de ejecutar el programa.</p>
+        <pre><code>int numero = 10;
+numero = "Hola"; <span class="cmt">// ERROR de compilación: incompatible types</span></code></pre>
+
+        <p><b>TypeScript — tipado estático sobre JavaScript:</b> añade la seguridad de Java sin perder la sintaxis de JS.</p>
+        <pre><code>let numero: number = 10;
+numero = "Hola"; <span class="cmt">// ERROR en tiempo de compilación</span>
+
+interface Usuario {
+  nombre: string;
+  edad: number;
+}</code></pre>
+
+        <table>
+          <tr><th>Aspecto</th><th>JavaScript</th><th>Java</th></tr>
+          <tr><td><b>Tipado</b></td><td>Débil (dinámico)</td><td>Fuerte (estático)</td></tr>
+          <tr><td><b>Compilación</b></td><td>Interpretado (runtime)</td><td>Compilado (compile-time)</td></tr>
+          <tr><td><b>Declaración de tipos</b></td><td>Opcional</td><td>Obligatoria</td></tr>
+          <tr><td><b>Cambio de tipo</b></td><td>Permitido</td><td>No permitido</td></tr>
+          <tr><td><b>Detección de errores</b></td><td>En ejecución</td><td>En compilación</td></tr>
+          <tr><td><b>Uso principal</b></td><td>Web (frontend/backend)</td><td>Aplicaciones empresariales</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h3>2.7 · Historia de JavaScript</h3>
+        <p>Brendan Eich creó JavaScript en 1995, en solo 10 días, trabajando en Netscape. Se llamó primero <b>Mocha</b>, luego <b>LiveScript</b>, y se renombró a <b>JavaScript</b> como estrategia de marketing (Java estaba en auge, pero no tienen relación técnica directa). En 1997 se estandarizó como <b>ECMAScript</b>, y en 2015 llegó <b>ES6/ES2015</b>, la versión que introdujo la sintaxis moderna (<code class="inline">let</code>, <code class="inline">const</code>, arrow functions, template literals, etc.) que se usa en este curso.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.8 · Variables: <code class="inline">var</code>, <code class="inline">let</code>, <code class="inline">const</code></h3>
+        <pre><code>var nombre = "Juan";   <span class="cmt">// scope de función, evitar en código moderno</span>
+let edad = 25;         <span class="cmt">// scope de bloque, reasignable</span>
+const ciudad = "Medellín"; <span class="cmt">// scope de bloque, NO reasignable</span></code></pre>
+        <p class="dim">La diferencia clave es el <b>scope de bloque</b>: <code class="inline">let</code> y <code class="inline">const</code> solo existen dentro de las llaves <code class="inline">{ }</code> donde se declaran; <code class="inline">var</code> "se escapa" del bloque.</p>
+        <pre><code>if (true) {
+  var a = 1;   <span class="cmt">// accesible fuera del bloque</span>
+  let b = 2;   <span class="cmt">// NO accesible fuera del bloque</span>
+}
+console.log(a); <span class="cmt">// 1</span>
+console.log(b); <span class="cmt">// ReferenceError</span></code></pre>
+        <p class="dim">Recomendación práctica: <code class="inline">const</code> por defecto, <code class="inline">let</code> cuando necesites reasignar, evitar <code class="inline">var</code>.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.9 · Tipos de datos</h3>
+        <p><b>Primitivos:</b></p>
+        <pre><code>let texto = "Hola, mundo";          <span class="cmt">// string</span>
+let template = `Hola, ${texto}`;    <span class="cmt">// template literal</span>
+let entero = 42;                    <span class="cmt">// number</span>
+let decimal = 3.14;                 <span class="cmt">// number</span>
+let noEsNumero = NaN;               <span class="cmt">// number (caso especial)</span>
+let esActivo = true;                <span class="cmt">// boolean</span>
+let variable;                       <span class="cmt">// undefined (declarada, sin valor)</span>
+let valor = null;                   <span class="cmt">// null (ausencia intencional de valor)</span></code></pre>
+        <p><b>Por referencia:</b></p>
+        <pre><code>let usuario = { nombre: "Juan", edad: 25 };  <span class="cmt">// object</span>
+let numeros = [1, 2, 3, 4, 5];               <span class="cmt">// array (internamente, un objeto)</span></code></pre>
+        <p class="dim">Verificación de tipo con <code class="inline">typeof</code> — importante notar que <code class="inline">typeof</code> sobre un array devuelve <code class="inline">"object"</code>, no <code class="inline">"array"</code> (no existe un tipo <code class="inline">"array"</code> como tal en <code class="inline">typeof</code>).</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.10 · Operadores</h3>
+        <p><b>Aritméticos:</b> <code class="inline">+ - * / % **</code> (el <code class="inline">%</code> es el residuo/módulo, <code class="inline">**</code> es potencia).</p>
+        <p><b>Asignación:</b> <code class="inline">= += -= *= /= %=</code> — cada uno es un atajo de "operar y volver a asignar a la misma variable".</p>
+        <p><b>Comparación:</b></p>
+        <pre><code>let a = 5;
+let b = "5";
+console.log(a == b);  <span class="cmt">// true  → compara con coerción de tipos</span>
+console.log(a === b); <span class="cmt">// false → compara valor Y tipo, sin coerción</span></code></pre>
+        <p class="dim">Por eso se recomienda <b>siempre usar <code class="inline">===</code></b>: evita que JavaScript "adivine" una equivalencia que en realidad no existe.</p>
+        <p><b>Lógicos:</b> <code class="inline">&&</code> (AND), <code class="inline">||</code> (OR), <code class="inline">!</code> (NOT) — se usan constantemente en condicionales.</p>
+        <p><b>Incremento/decremento:</b></p>
+        <pre><code>let a = 5;
+console.log(++a); <span class="cmt">// 6 → incrementa ANTES de mostrar (pre-incremento)</span>
+console.log(a++); <span class="cmt">// 6 → muestra ANTES de incrementar (post-incremento)</span>
+console.log(a);   <span class="cmt">// 7</span></code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.11 · Funciones: formas de declararlas</h3>
+        <pre><code><span class="cmt">// Declaración tradicional</span>
+function saludar(nombre) {
+  return `Hola, ${nombre}`;
+}
+
+<span class="cmt">// Expresión de función</span>
+const sumar = function(a, b) {
+  return a + b;
+};
+
+<span class="cmt">// Arrow function</span>
+const multiplicar = (a, b) => {
+  return a * b;
+};
+
+<span class="cmt">// Arrow function corta (retorno implícito)</span>
+const cuadrado = x => x * x;</code></pre>
+        <p><b>Parámetros por defecto:</b></p>
+        <pre><code>function crearSaludo(nombre = "Amigo", saludo = "Hola") {
+  return `${saludo}, ${nombre}`;
+}</code></pre>
+        <p><b>Parámetros rest</b> (recibir cualquier cantidad de argumentos como array):</p>
+        <pre><code>function sumarTodos(...numeros) {
+  let total = 0;
+  for (let num of numeros) {
+    total += num;
+  }
+  return total;
+}
+sumarTodos(1, 2, 3, 4, 5); <span class="cmt">// 15</span></code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.12 · Retorno de valores</h3>
+        <pre><code>function calcularEdad(anioNacimiento) {
+  const anioActual = 2025;
+  return anioActual - anioNacimiento;
+}
+
+<span class="cmt">// Una función SIN return explícito devuelve undefined</span>
+function mostrarMensaje(texto) {
+  console.log(texto);
+}
+let resultado = mostrarMensaje("Hola"); <span class="cmt">// imprime "Hola"</span>
+console.log(resultado); <span class="cmt">// undefined</span></code></pre>
+      </div>
+    </section>
+
+    <section class="block" id="s3">
+      <div class="block-head"><span class="idx">03</span><h2>Conceptos clave (glosario)</h2></div>
+      <table>
+        <tr><th>Término</th><th>Definición</th></tr>
+        <tr><td><span class="glossary-term">Cluster (MongoDB Atlas)</span></td><td>Instancia de base de datos alojada en la nube</td></tr>
+        <tr><td><span class="glossary-term">Compass</span></td><td>Cliente gráfico de MongoDB para explorar datos sin comandos</td></tr>
+        <tr><td><span class="glossary-term">Algoritmo</span></td><td>Conjunto ordenado y finito de pasos que resuelve un problema</td></tr>
+        <tr><td><span class="glossary-term">EPS</span></td><td>Regla mnemotécnica: Entrada, Proceso, Salida</td></tr>
+        <tr><td><span class="glossary-term">Tipado débil/dinámico</span></td><td>El tipo de una variable puede cambiar en tiempo de ejecución (JavaScript)</td></tr>
+        <tr><td><span class="glossary-term">Tipado fuerte/estático</span></td><td>El tipo se declara y no cambia; se verifica en compilación (Java)</td></tr>
+        <tr><td><span class="glossary-term">Coerción de tipos</span></td><td>Conversión automática e implícita de un tipo a otro que hace JavaScript</td></tr>
+        <tr><td><span class="glossary-term">Scope</span></td><td>El "alcance" o zona del código donde una variable es visible/accesible</td></tr>
+        <tr><td><span class="glossary-term">Hoisting</span></td><td>Comportamiento de JS de "elevar" declaraciones al inicio de su scope antes de ejecutar</td></tr>
+        <tr><td><span class="glossary-term">Parámetro rest</span></td><td>Sintaxis <code class="inline">...nombre</code> que agrupa argumentos extra en un array</td></tr>
+        <tr><td><span class="glossary-term">Template literal</span></td><td>Cadena de texto con backticks que permite interpolar variables con <code class="inline">${}</code></td></tr>
+      </table>
+    </section>
+
+    <section class="block" id="s4">
+      <div class="block-head"><span class="idx">04</span><h2>¿Para qué sirve cada concepto?</h2></div>
+      <ul class="errors" style="--tick:true;">
+        <li style="border-bottom:1px solid var(--line);"><b>MongoDB Atlas/Compass</b> → tener una base de datos real en la nube y poder inspeccionarla visualmente mientras programas, sin depender solo de la consola.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Pensar en algoritmos (EPS)</b> → estructurar cualquier función que escribas: primero identificar qué entra, qué se procesa, qué sale.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Entender el tipado débil de JS</b> → anticipar errores de coerción antes de que ocurran, y entender por qué TypeScript (Clase 7) va a "arreglar" este problema.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Variables con scope correcto</b> → evitar bugs donde una variable "se filtra" fuera de donde debería existir.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Operadores de comparación estricta (<code class="inline">===</code>)</b> → escribir condicionales confiables, sin sorpresas de coerción.</li>
+        <li><b>Funciones con parámetros por defecto/rest</b> → escribir funciones más flexibles y reutilizables.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s5">
+      <div class="block-head"><span class="idx">05</span><h2>Ejemplos abstractos</h2></div>
+      <pre><code>let <span class="ph">[variable_1]</span> = <span class="ph">[valor_1]</span>;
+const <span class="ph">[variable_2]</span> = <span class="ph">[valor_2]</span>;</code></pre>
+      <p class="dim"><code class="inline">let, const</code> son palabras reservadas, <b>fijas</b>. <span class="glossary-term">[variable_1]</span>, <span class="glossary-term">[valor_1]</span> son nombres/valores elegidos por el estudiante, reutilizables.</p>
+
+      <pre><code>function <span class="ph">[nombre_funcion]</span>(<span class="ph">[parametro_1]</span> = <span class="ph">[valor_defecto]</span>) {
+  return <span class="ph">[parametro_1]</span>;
+}</code></pre>
+      <p class="dim"><code class="inline">function, return</code> son sintaxis fija del lenguaje. <span class="glossary-term">[nombre_funcion]</span>, <span class="glossary-term">[parametro_1]</span>, <span class="glossary-term">[valor_defecto]</span> los define el estudiante; el nombre de la función se puede reutilizar/llamar tantas veces como se necesite, siempre igual.</p>
+
+      <pre><code>console.log(typeof <span class="ph">[variable_1]</span>);</code></pre>
+      <p class="dim"><code class="inline">console.log, typeof</code> son métodos/operadores fijos del lenguaje/entorno. <span class="glossary-term">[variable_1]</span> es cualquier variable que quieras inspeccionar.</p>
+
+      <pre><code>function <span class="ph">[nombre]</span>(...<span class="ph">[lista_de_argumentos]</span>) {
+  <span class="cmt">// [lista_de_argumentos] se comporta como un array</span>
+}</code></pre>
+      <p class="dim">La sintaxis <code class="inline">...</code> (rest) es fija; el nombre que le des al parámetro rest sí lo eliges tú.</p>
+    </section>
+
+    <section class="block" id="s6">
+      <div class="block-head"><span class="idx">06</span><h2>Excepciones y casos especiales</h2></div>
+      <div class="callout warn"><span class="tag">typeof con arrays</span><code class="inline">typeof [1,2,3]</code> devuelve <code class="inline">"object"</code>, no <code class="inline">"array"</code> — para verificar si algo es array se usa <code class="inline">Array.isArray()</code>, no <code class="inline">typeof</code>.</div>
+      <div class="callout warn"><span class="tag">var y scope de función, no de bloque</span>Una variable <code class="inline">var</code> declarada dentro de un <code class="inline">if</code> sigue existiendo fuera del bloque — esto rompe la intuición de bloque y es la razón principal por la que se evita en código moderno.</div>
+      <div class="callout warn"><span class="tag">== vs ===</span><code class="inline">5 == "5"</code> es <code class="inline">true</code> por coerción, pero <code class="inline">5 === "5"</code> es <code class="inline">false</code> — la coerción de <code class="inline">==</code> puede generar bugs silenciosos difíciles de detectar.</div>
+      <div class="callout warn"><span class="tag">const con objetos/arrays</span><code class="inline">const</code> impide <b>reasignar</b> la variable completa, pero SÍ permite modificar el contenido interno de un objeto o array (ej. <code class="inline">const arr = [1,2]; arr.push(3)</code> es válido).</div>
+      <div class="callout warn"><span class="tag">Función sin return</span>Siempre devuelve <code class="inline">undefined</code>, aunque internamente haga <code class="inline">console.log</code> o cualquier otra acción — es un error común pensar que "hacer algo" en la función equivale a "devolver algo".</div>
+      <div class="callout warn"><span class="tag">Pre vs post incremento</span><code class="inline">++a</code> y <code class="inline">a++</code> dan el mismo resultado final, pero el <b>valor que se muestra en ese instante</b> es distinto — una fuente común de confusión en principiantes.</div>
+    </section>
+
+    <section class="block" id="s7">
+      <div class="block-head"><span class="idx">07</span><h2>Metáforas y ejemplos visuales</h2></div>
+      <div class="metaphor-grid">
+        <div class="metaphor-card"><span class="label">Algoritmo (EPS)</span>Una receta de cocina: los <b>ingredientes</b> son la entrada, los <b>pasos de preparación</b> son el proceso, y el <b>plato terminado</b> es la salida.</div>
+        <div class="metaphor-card"><span class="label">Tipado débil vs fuerte</span>JavaScript es como una caja que puede contener cualquier cosa y cambiar de contenido libremente (una caja de mudanza reutilizable); Java es como un casillero etiquetado que solo acepta un tipo específico de objeto, y si intentas meter otra cosa, no cierra.</div>
+        <div class="metaphor-card"><span class="label">MongoDB Compass</span>Un explorador de archivos (como el Finder o el Explorador de Windows), pero para bases de datos: te deja navegar carpetas (bases de datos), subcarpetas (colecciones) y archivos (documentos) sin escribir comandos.</div>
+        <div class="metaphor-card"><span class="label">Scope de bloque (let/const)</span>Un cuarto con puerta que se cierra: lo que pasa dentro del cuarto (el bloque <code class="inline">{ }</code>) se queda ahí. <code class="inline">var</code> sería un cuarto sin puerta: lo que pasa dentro se puede ver también desde afuera.</div>
+      </div>
+    </section>
+
+    <section class="block" id="s8">
+      <div class="block-head"><span class="idx">08</span><h2>Errores típicos de un junior</h2></div>
+      <ul class="errors">
+        <li>Confundir <code class="inline">==</code> con <code class="inline">===</code> y no entender por qué una comparación "rara" da <code class="inline">true</code>.</li>
+        <li>Usar <code class="inline">var</code> por costumbre y sorprenderse de que una variable "se filtre" fuera de un <code class="inline">if</code>.</li>
+        <li>Olvidar el <code class="inline">return</code> en una función y luego no entender por qué el resultado es <code class="inline">undefined</code>.</li>
+        <li>Intentar reasignar una variable <code class="inline">const</code> y no entender el error (<code class="inline">Assignment to constant variable</code>).</li>
+        <li>Pensar que <code class="inline">typeof miArray</code> devuelve <code class="inline">"array"</code> en vez de <code class="inline">"object"</code>.</li>
+        <li>No distinguir cuándo usar <code class="inline">let</code> vs <code class="inline">const</code> (usar <code class="inline">let</code> para todo "por si acaso").</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s9">
+      <div class="block-head"><span class="idx">09</span><h2>Preguntas de autoevaluación</h2></div>
+      <ol class="quiz-list">
+        <li>¿Puedo explicar los pasos para crear un cluster gratuito en MongoDB Atlas?</li>
+        <li>¿Sé para qué sirve MongoDB Compass y en qué se diferencia de Atlas?</li>
+        <li>¿Puedo explicar el patrón Entrada → Proceso → Salida con un ejemplo propio?</li>
+        <li>¿Puedo nombrar las 5 características de un buen algoritmo?</li>
+        <li>¿Entiendo la diferencia entre tipado débil (JS) y tipado fuerte (Java)?</li>
+        <li>¿Sé explicar qué es la coerción de tipos con un ejemplo?</li>
+        <li>¿Puedo explicar la diferencia entre <code class="inline">var</code>, <code class="inline">let</code> y <code class="inline">const</code> en cuanto a scope?</li>
+        <li>¿Sé por qué se prefiere <code class="inline">===</code> sobre <code class="inline">==</code>?</li>
+        <li>¿Puedo escribir una función con parámetros por defecto y otra con parámetros rest?</li>
+        <li>¿Entiendo por qué una función sin <code class="inline">return</code> devuelve <code class="inline">undefined</code>?</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s10">
+      <div class="block-head"><span class="idx">10</span><h2>Checklist final de dominio</h2></div>
+      <ul class="check-list">
+        <li><input type="checkbox" id="c1"><label for="c1">Creé un cluster gratuito en MongoDB Atlas y obtuve mi connection string</label></li>
+        <li><input type="checkbox" id="c2"><label for="c2">Instalé MongoDB Compass y me conecté exitosamente al cluster</label></li>
+        <li><input type="checkbox" id="c3"><label for="c3">Puedo explicar el patrón Entrada → Proceso → Salida con mis propias palabras</label></li>
+        <li><input type="checkbox" id="c4"><label for="c4">Entiendo la diferencia entre tipado débil (JS) y tipado fuerte (Java)</label></li>
+        <li><input type="checkbox" id="c5"><label for="c5">Puedo declarar variables correctamente con var, let y const sabiendo la diferencia</label></li>
+        <li><input type="checkbox" id="c6"><label for="c6">Identifico todos los tipos de datos primitivos y de referencia de JS</label></li>
+        <li><input type="checkbox" id="c7"><label for="c7">Uso correctamente operadores aritméticos, de comparación y lógicos</label></li>
+        <li><input type="checkbox" id="c8"><label for="c8">Sé escribir funciones en sus tres formas (declaración, expresión, arrow)</label></li>
+        <li><input type="checkbox" id="c9"><label for="c9">Entiendo parámetros por defecto y parámetros rest</label></li>
+        <li><input type="checkbox" id="c10"><label for="c10">Me siento en confianza de decir que "vi" esta clase completa</label></li>
+      </ul>
+      <p class="progress-note">Marca cada casilla a medida que repases — el progreso es solo visual en esta página.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    Formador: Steven Zuluaga Cortés · <a href="https://www.devseniorcode.com" target="_blank" rel="noopener">devseniorcode.com</a> · Academy@devseniorcode.com · @devseniorcode
+  </footer>
+
+</body>
+</html>
