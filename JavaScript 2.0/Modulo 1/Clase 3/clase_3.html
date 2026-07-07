@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 3 — Estructuras de Control y Bucles en JavaScript</title>
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/jetbrains-mono/2.304/JetBrainsMono.css');
+
+  :root{
+    --bg: #12151a;
+    --bg-alt: #181c23;
+    --surface: #1d222b;
+    --surface-hi: #242a35;
+    --line: #2a303b;
+    --text: #e7e4da;
+    --text-dim: #93998f;
+    --amber: #e8a33d;
+    --amber-dim: #a8763a;
+    --teal: #5fb3ad;
+    --red: #d97a6c;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Menlo, monospace;
+    --sans: 'IBM Plex Sans', Segoe UI, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,163,61,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(95,179,173,0.05), transparent 60%);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height:100vh;
+  }
+
+  /* Corner tag */
+  .corner-tag{
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--amber-dim);
+    color: var(--amber);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    padding: 7px 12px;
+    border-radius: 4px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  }
+  .corner-tag::before{
+    content: "● ";
+    color: var(--teal);
+  }
+
+  /* Terminal chrome header */
+  .term-bar{
+    max-width: 920px;
+    margin: 48px auto 0;
+    padding: 0 20px;
+  }
+  .term-window{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px 10px 0 0;
+    overflow:hidden;
+  }
+  .term-titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 10px 14px;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--line);
+  }
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.red{ background:#e0645a; }
+  .dot.yellow{ background:#e0b25a; }
+  .dot.green{ background:#5cbf7a; }
+  .term-title{
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .term-body{
+    padding: 34px 36px 30px;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--teal);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  h1.hero-title{
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.15;
+    margin: 10px 0 6px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .hero-title .prompt{ color: var(--amber); }
+  .hero-sub{
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 60ch;
+    margin: 10px 0 0;
+  }
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap: 10px 22px;
+    margin-top: 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .meta-row b{ color: var(--text); font-weight: 600; }
+
+  /* Table of contents */
+  nav.toc{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 22px 20px 0;
+  }
+  .toc-inner{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0 0 10px 10px;
+    padding: 20px 24px 22px;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 20px;
+  }
+  @media (max-width: 640px){ .toc-inner{ grid-template-columns: 1fr; } }
+  .toc-inner a{
+    color: var(--text-dim);
+    text-decoration:none;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    display:flex;
+    gap: 8px;
+  }
+  .toc-inner a:hover{ background: var(--surface-hi); color: var(--amber); }
+  .toc-inner a span.n{ color: var(--amber-dim); }
+
+  main{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  section.block{
+    margin-bottom: 44px;
+    scroll-margin-top: 30px;
+  }
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .block-head .idx{
+    font-family: var(--mono);
+    color: var(--amber);
+    font-size: 14px;
+  }
+  .block-head h2{
+    font-family: var(--mono);
+    font-size: 19px;
+    margin: 0;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  p{ color: var(--text); font-size: 15px; }
+  p.dim{ color: var(--text-dim); }
+
+  .subsection{
+    margin-bottom: 26px;
+    padding-left: 16px;
+    border-left: 2px solid var(--line);
+  }
+  .subsection h3{
+    font-family: var(--mono);
+    font-size: 15.5px;
+    color: var(--teal);
+    margin: 0 0 8px;
+  }
+
+  code, pre code{
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  code.inline{
+    background: var(--surface-hi);
+    color: var(--amber);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+  pre{
+    background: #0e1116;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+  pre code{ color: #c9d6d8; }
+  pre .cmt{ color: var(--text-dim); }
+  pre .flag{ color: var(--amber); }
+  pre .ph{ color: var(--teal); }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td{
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  th{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: var(--surface-hi);
+  }
+  td b{ color: var(--text); }
+  tr:hover td{ background: rgba(255,255,255,0.02); }
+
+  .callout{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--teal);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 14.5px;
+  }
+  .callout.warn{ border-left-color: var(--red); }
+  .callout .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    display:block;
+    margin-bottom: 6px;
+  }
+
+  .metaphor-grid{
+    display: grid;
+    gap: 14px;
+  }
+  .metaphor-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .metaphor-card .label{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display:block;
+    margin-bottom: 8px;
+  }
+
+  ul.errors{ list-style: none; padding: 0; margin: 0; }
+  ul.errors li{
+    position: relative;
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  ul.errors li::before{
+    content: "✕";
+    position:absolute; left: 0; top: 10px;
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  ul.errors li:last-child{ border-bottom: none; }
+
+  .quiz-list{ list-style: none; padding: 0; margin: 0; counter-reset: q; }
+  .quiz-list li{
+    counter-increment: q;
+    padding: 12px 14px 12px 44px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+  }
+  .quiz-list li::before{
+    content: counter(q, decimal-leading-zero);
+    position: absolute;
+    left: 12px; top: 12px;
+    font-family: var(--mono);
+    color: var(--amber-dim);
+    font-size: 13px;
+  }
+
+  .check-list{ list-style:none; padding:0; margin:0; }
+  .check-list li{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .check-list li:last-child{ border-bottom:none; }
+  .check-list input[type=checkbox]{
+    appearance: none;
+    -webkit-appearance:none;
+    width: 18px; height: 18px;
+    min-width:18px;
+    border: 1px solid var(--amber-dim);
+    border-radius: 4px;
+    background: var(--bg-alt);
+    cursor:pointer;
+    margin-top: 2px;
+    position: relative;
+  }
+  .check-list input[type=checkbox]:checked{
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+  .check-list input[type=checkbox]:checked::after{
+    content:"✓";
+    position:absolute; left:2px; top:-2px;
+    color: #12151a;
+    font-size: 13px;
+    font-weight:700;
+  }
+  .check-list label{ cursor:pointer; }
+  .check-list input[type=checkbox]:checked + label{
+    color: var(--text-dim);
+    text-decoration: line-through;
+  }
+
+  .glossary-term{ color: var(--amber); font-family: var(--mono); font-size: 13.5px; }
+
+  footer{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: var(--mono);
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  footer a{ color: var(--teal); text-decoration:none; }
+
+  .progress-note{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  @media (max-width: 560px){
+    .term-body{ padding: 24px 20px 22px; }
+    main{ padding: 30px 16px 80px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="corner-tag">JS-M1-C3</div>
+
+  <div class="term-bar">
+    <div class="term-window">
+      <div class="term-titlebar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <div class="term-title">clase_3.md — ~/ideade/js-mean-mastery/m1-u1</div>
+      </div>
+      <div class="term-body">
+        <span class="eyebrow">JavaScript MEAN Mastery · Módulo 1 · Unidad 1</span>
+        <h1 class="hero-title"><span class="prompt">$</span> Estructuras de Control y Bucles en JavaScript</h1>
+        <p class="hero-sub">Guía de estudio completa de la Clase 3 — condicionales, operador ternario, switch, los cinco tipos de bucle, break/continue, bucles anidados e infinitos, y su aplicación práctica en el DOM.</p>
+        <div class="meta-row">
+          <span>Formador: <b>Steven Zuluaga Cortés</b></span>
+          <span>Duración: <b>3 horas</b></span>
+          <span>Nivel: <b>Junior</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-inner">
+      <a href="#s1"><span class="n">01</span> Índice de subtemas</a>
+      <a href="#s2"><span class="n">02</span> Explicación por subtema</a>
+      <a href="#s3"><span class="n">03</span> Glosario de conceptos</a>
+      <a href="#s4"><span class="n">04</span> ¿Para qué sirve?</a>
+      <a href="#s5"><span class="n">05</span> Ejemplos abstractos</a>
+      <a href="#s6"><span class="n">06</span> Excepciones y casos especiales</a>
+      <a href="#s7"><span class="n">07</span> Metáforas visuales</a>
+      <a href="#s8"><span class="n">08</span> Errores típicos</a>
+      <a href="#s9"><span class="n">09</span> Autoevaluación</a>
+      <a href="#s10"><span class="n">10</span> Checklist final</a>
+      <a href="#s11"><span class="n">11</span> Recursos adicionales</a>
+      <a href="#s12"><span class="n">12</span> Próximas clases</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <section class="block" id="s1">
+      <div class="block-head"><span class="idx">01</span><h2>Índice de subtemas</h2></div>
+      <ol style="color:var(--text); font-size:15px; padding-left:22px;">
+        <li>Qué son las estructuras de control y por qué existen</li>
+        <li>Condicional <code class="inline">if</code> / <code class="inline">else if</code> / <code class="inline">else</code></li>
+        <li>Operador ternario (<code class="inline">condicion ? valorSiTrue : valorSiFalse</code>)</li>
+        <li>Operadores lógicos en condiciones compuestas y <i>short-circuit evaluation</i></li>
+        <li><code class="inline">switch</code> / <code class="inline">case</code> / <code class="inline">default</code> / <code class="inline">break</code> y el fall-through</li>
+        <li>Bucle <code class="inline">for</code> clásico (inicialización, condición, incremento)</li>
+        <li>Bucle <code class="inline">while</code></li>
+        <li>Bucle <code class="inline">do...while</code> y su diferencia clave con <code class="inline">while</code></li>
+        <li><code class="inline">for...of</code> — iterar valores de un iterable</li>
+        <li><code class="inline">for...in</code> — iterar propiedades de un objeto</li>
+        <li><code class="inline">break</code> y <code class="inline">continue</code> dentro de bucles</li>
+        <li>Bucles anidados (bucle dentro de bucle)</li>
+        <li>Bucles infinitos: causas comunes y cómo evitarlos</li>
+        <li>Buenas prácticas: qué bucle usar según el caso</li>
+        <li>Aplicación práctica: condicionales + bucles en el DOM</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s2">
+      <div class="block-head"><span class="idx">02</span><h2>Explicación detallada por subtema</h2></div>
+
+      <div class="subsection">
+        <h3>2.1 · Qué son las estructuras de control y por qué existen</h3>
+        <p>Sin estructuras de control, un programa se ejecutaría siempre igual, línea por línea, sin poder "decidir" ni "repetir". Las estructuras de control dan dos superpoderes:</p>
+        <p><b>Decisión:</b> ejecutar un bloque de código u otro según si una condición es verdadera o falsa (<code class="inline">if</code>, <code class="inline">switch</code>, ternario).<br>
+        <b>Repetición:</b> ejecutar un mismo bloque varias veces sin copiarlo y pegarlo manualmente (<code class="inline">for</code>, <code class="inline">while</code>, <code class="inline">do...while</code>, <code class="inline">for...of</code>, <code class="inline">for...in</code>).</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.2 · Condicional if / else if / else</h3>
+        <p><b>Uso:</b> tomar decisiones basadas en condiciones booleanas.</p>
+        <pre><code>const n = 7;
+if (n > 0) {
+  console.log('positivo');
+} else if (n < 0) {
+  console.log('negativo');
+} else {
+  console.log('cero');
+}</code></pre>
+        <p class="dim"><b>Cómo funciona internamente:</b> JS evalúa las condiciones de arriba hacia abajo. En cuanto una es "truthy", ejecuta ese bloque y se salta el resto — los demás <code class="inline">else if</code>/<code class="inline">else</code> ni se evalúan. Si ninguna es verdadera, corre el <code class="inline">else</code> (si existe).</p>
+        <p><b>Buenas prácticas:</b> evitar condiciones complejas en una línea (extraer a funciones con nombre); preferir <code class="inline">===</code> salvo que se requiera coerción; un <code class="inline">if</code> sin <code class="inline">else</code> es válido y común.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.3 · Operador ternario</h3>
+        <p><b>Uso:</b> una forma corta de <code class="inline">if/else</code> simple que <b>devuelve un valor</b>, ideal para asignaciones rápidas.</p>
+        <pre><code>const edad = 20;
+const mensaje = (edad >= 18) ? 'Eres mayor de edad' : 'Eres menor de edad';
+console.log(mensaje); <span class="cmt">// "Eres mayor de edad"</span></code></pre>
+        <p class="dim">Sintaxis: <code class="inline">condicion ? valorSiTrue : valorSiFalse</code>. A diferencia de <code class="inline">if/else</code>, el ternario <b>es una expresión</b> que produce un valor utilizable.</p>
+        <p><b>Cuándo usarlo:</b> ternario → cuando el resultado es un valor a asignar directamente (clase CSS, texto, número). <code class="inline">if/else</code> → cuando necesitas ejecutar varias líneas o efectos secundarios.</p>
+        <p>Ejemplo real de un ejercicio de esta clase, usando el ternario dentro de un bucle:</p>
+        <pre><code>const container = document.getElementById('container');
+for (let i = 1; i <= 10; i++) {
+  const type = (i % 2 === 0) ? 'par' : 'impar';
+  const div = document.createElement('div');
+  div.classList.add(`square-${type === 'par' ? 'red' : 'blue'}`);
+  div.textContent = i;
+  container.appendChild(div);
+}</code></pre>
+        <p class="dim">Aquí hay dos ternarios anidados dentro de un <code class="inline">for</code>: uno decide "par"/"impar", el otro decide la clase CSS. Anidar es válido, pero más de un nivel reduce la legibilidad.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.4 · Operadores lógicos y short-circuit evaluation</h3>
+        <pre><code>const edad = 25;
+const tieneCedula = true;
+if (edad >= 18 && tieneCedula) {
+  console.log('Puede votar');
+}
+
+const esFeriado = false;
+const esFinDeSemana = true;
+if (esFeriado || esFinDeSemana) {
+  console.log('No hay clases hoy');
+}
+
+const estaLloviendo = false;
+if (!estaLloviendo) {
+  console.log('Puedes salir sin paraguas');
+}</code></pre>
+        <p><b>Short-circuit evaluation:</b> JavaScript no evalúa más de lo necesario. Con <code class="inline">&&</code>, si el primer operando es falso, ni evalúa el segundo. Con <code class="inline">||</code>, si el primero es verdadero, ni evalúa el segundo.</p>
+        <pre><code>function log(msg) {
+  console.log(msg);
+  return true;
+}
+
+false && log('esto NO se imprime'); <span class="cmt">// el && corta antes de log()</span>
+true || log('esto tampoco se imprime'); <span class="cmt">// el || corta antes de log()</span></code></pre>
+        <p class="dim">Base de patrones comunes como <code class="inline">usuario && usuario.nombre</code> (evitar errores si es <code class="inline">null</code>) o <code class="inline">valor || 'valor por defecto'</code>.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.5 · switch / case / default / break</h3>
+        <p><b>Uso:</b> seleccionar entre múltiples caminos discretos basados en un mismo valor.</p>
+        <pre><code>const dia = 'viernes';
+switch (dia) {
+  case 'lunes':
+    console.log('inicia la semana');
+    break;
+  case 'viernes':
+    console.log('fin de semana cerca');
+    break;
+  default:
+    console.log('día normal');
+}</code></pre>
+        <p class="dim">JS compara <code class="inline">dia</code> con cada <code class="inline">case</code> usando igualdad estricta (<code class="inline">===</code>). Al encontrar coincidencia, ejecuta ese bloque y <b>sigue ejecutando los siguientes</b> a menos que haya un <code class="inline">break</code>.</p>
+        <div class="callout warn">
+          <span class="tag">Fall-through no intencional</span>
+          Si olvidas el <code class="inline">break</code>, la ejecución "cae" al siguiente <code class="inline">case</code> sin verificar su condición.
+        </div>
+        <pre><code>switch (dia) {
+  case 'sabado':
+  case 'domingo':
+    console.log('es fin de semana'); <span class="cmt">// se ejecuta para AMBOS casos</span>
+    break;
+  default:
+    console.log('es día de semana');
+}</code></pre>
+        <p class="dim">El fall-through también puede ser <b>intencional</b>, como arriba, para compartir un mismo bloque entre varios <code class="inline">case</code>.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.6 · Bucle for clásico</h3>
+        <p><b>Uso:</b> iteraciones donde conoces (o controlas) el índice/contador.</p>
+        <pre><code>for (let i = 0; i < 5; i++) {
+  console.log(i);
+}</code></pre>
+        <p><b>Anatomía (tres partes separadas por <code class="inline">;</code>):</b></p>
+        <p class="dim"><b>1. Inicialización</b> (<code class="inline">let i = 0</code>): se ejecuta una sola vez.<br>
+        <b>2. Condición</b> (<code class="inline">i < 5</code>): se evalúa antes de cada iteración.<br>
+        <b>3. Incremento</b> (<code class="inline">i++</code>): se ejecuta después de cada iteración.</p>
+        <p class="dim"><b>Caso de uso:</b> recorrer arrays con índice, construir elementos del DOM con un contador.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.7 · Bucle while</h3>
+        <p><b>Uso:</b> repetir mientras una condición sea verdadera; la condición se evalúa <b>antes</b> de cada iteración.</p>
+        <pre><code>let i = 0;
+while (i < 3) {
+  console.log(i);
+  i++;
+}</code></pre>
+        <p class="dim">A diferencia del <code class="inline">for</code>, no tiene sintaxis fija de tres partes — ideal cuando no sabes de antemano cuántas veces se repetirá.</p>
+        <div class="callout warn"><span class="tag">Peligro</span>Si la condición nunca se vuelve falsa (ej. olvidas el <code class="inline">i++</code>), el bucle se ejecuta para siempre.</div>
+      </div>
+
+      <div class="subsection">
+        <h3>2.8 · Bucle do...while</h3>
+        <p><b>Uso:</b> idéntico a <code class="inline">while</code>, pero garantiza que el cuerpo se ejecute <b>al menos una vez</b>.</p>
+        <pre><code>let i = 0;
+do {
+  console.log(i);
+  i++;
+} while (i < 3);</code></pre>
+        <p class="dim">En <code class="inline">while</code>, la condición se evalúa antes del primer bloque; en <code class="inline">do...while</code>, se evalúa después.</p>
+        <pre><code>let i = 10;
+
+while (i < 5) {
+  console.log('while:', i); <span class="cmt">// nunca se imprime</span>
+  i++;
+}
+
+do {
+  console.log('do...while:', i); <span class="cmt">// se imprime UNA vez</span>
+  i++;
+} while (i < 5);</code></pre>
+        <p class="dim"><b>Caso de uso:</b> menús interactivos o validaciones donde necesitas mostrar/pedir algo al menos una vez.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.9 · for...of</h3>
+        <p><b>Uso:</b> iterar directamente sobre los <b>valores</b> de un iterable (arrays, strings, Map, Set, NodeList, etc.).</p>
+        <pre><code>const frutas = ['manzana', 'pera', 'uva'];
+for (const f of frutas) {
+  console.log(f);
+}</code></pre>
+        <p class="dim"><b>Ventaja:</b> sintaxis limpia cuando no necesitas el índice. También funciona sobre strings:</p>
+        <pre><code>for (const letra of 'Hola') {
+  console.log(letra); <span class="cmt">// H, o, l, a</span>
+}</code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.10 · for...in</h3>
+        <p><b>Uso:</b> iterar sobre las <b>claves</b> (propiedades enumerables) de un objeto.</p>
+        <pre><code>const obj = { a: 1, b: 2 };
+for (const key in obj) {
+  console.log(key, obj[key]);
+}</code></pre>
+        <div class="callout warn"><span class="tag">Advertencia</span><code class="inline">for...in</code> itera propiedades enumerables, incluyendo las heredadas. Para arrays <b>no se recomienda</b> — usar <code class="inline">for</code> o <code class="inline">for...of</code>.</div>
+      </div>
+
+      <div class="subsection">
+        <h3>2.11 · break y continue dentro de bucles</h3>
+        <p><b>break</b>: termina el bucle por completo, de inmediato.<br>
+        <b>continue</b>: salta solo la iteración actual y continúa con la siguiente.</p>
+        <pre><code><span class="cmt">// break: detener apenas se encuentra el número</span>
+for (let i = 0; i < 10; i++) {
+  if (i === 5) break;
+  console.log(i); <span class="cmt">// imprime 0, 1, 2, 3, 4 y se detiene</span>
+}
+
+<span class="cmt">// continue: saltar solo los números pares</span>
+for (let i = 0; i < 6; i++) {
+  if (i % 2 === 0) continue;
+  console.log(i); <span class="cmt">// imprime 1, 3, 5</span>
+}</code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.12 · Bucles anidados</h3>
+        <p><b>Uso:</b> un bucle dentro de otro — el interno se ejecuta completo por cada iteración del externo.</p>
+        <pre><code>for (let fila = 1; fila <= 3; fila++) {
+  for (let columna = 1; columna <= 3; columna++) {
+    console.log(`Fila ${fila}, Columna ${columna}`);
+  }
+}
+<span class="cmt">// Se ejecuta 3 x 3 = 9 veces en total</span></code></pre>
+        <p class="dim"><b>Caso de uso:</b> matrices, tableros, cuadrículas de elementos del DOM, comparar dos listas.</p>
+        <p class="dim"><b>Nota de rendimiento:</b> si el externo corre N veces y el interno M veces, el total es N × M — con listas grandes puede ser lento.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.13 · Bucles infinitos</h3>
+        <p>Ocurren cuando la condición de parada nunca se vuelve falsa.</p>
+        <pre><code><span class="cmt">// 1. Olvidar el incremento/decremento</span>
+let i = 0;
+while (i < 5) {
+  console.log(i);
+  <span class="cmt">// falta i++  →  bucle infinito, i siempre es 0</span>
+}
+
+<span class="cmt">// 2. Modificar la variable equivocada dentro del bucle</span>
+let contador = 0;
+while (contador < 5) {
+  let otraVariable = contador + 1; <span class="cmt">// esto NO modifica "contador"</span>
+  console.log(otraVariable);
+  <span class="cmt">// contador nunca cambia → bucle infinito</span>
+}</code></pre>
+        <p class="dim"><b>Cómo evitarlos:</b> verifica que la variable de la condición se modifique dentro del cuerpo; pregúntate "¿en qué punto esta condición se vuelve falsa?" antes de ejecutar.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.14 · Buenas prácticas: qué bucle usar según el caso</h3>
+        <table>
+          <tr><th>Situación</th><th>Bucle recomendado</th></tr>
+          <tr><td>Sé exactamente cuántas veces repetir</td><td><code class="inline">for</code></td></tr>
+          <tr><td>Necesito solo los valores de un array/iterable</td><td><code class="inline">for...of</code></td></tr>
+          <tr><td>Necesito las claves de un objeto</td><td><code class="inline">for...in</code></td></tr>
+          <tr><td>No sé cuántas veces se repetirá</td><td><code class="inline">while</code></td></tr>
+          <tr><td>Necesito ejecutar el bloque al menos una vez sí o sí</td><td><code class="inline">do...while</code></td></tr>
+          <tr><td>Recorrer transformando/filtrando/sumando</td><td>Métodos funcionales (<code class="inline">map</code>, <code class="inline">filter</code>, <code class="inline">reduce</code>)</td></tr>
+        </table>
+        <p class="dim"><b>Regla general:</b> evita <code class="inline">for...in</code> en arrays; prefiere <code class="inline">for</code>, <code class="inline">for...of</code> o métodos funcionales.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.15 · Aplicación práctica: condicionales + bucles en el DOM</h3>
+        <p>La combinación más común en desarrollo web real es un bucle que genera elementos, decidiendo con un condicional cómo se ve cada uno:</p>
+        <pre><code>const container = document.getElementById("container");
+for (let i = -100; i <= 100; i++) {
+  const square = document.createElement("div");
+  if (i % 2 === 0) {
+    square.classList.add("square-even");
+    square.textContent = `🤝 + ${i}`;
+  } else {
+    square.textContent = `🫂 + ${i}`;
+    square.classList.add("square-odd");
+  }
+  container.appendChild(square);
+}</code></pre>
+        <p class="dim">Combina un <code class="inline">for</code> clásico que controla exactamente el rango (-100 a 100), un <code class="inline">if/else</code> dentro del bucle que decide clase CSS y texto por iteración, y manipulación del DOM (<code class="inline">createElement</code>, <code class="inline">classList.add</code>, <code class="inline">textContent</code>, <code class="inline">appendChild</code>) que se profundiza en la Clase 5.</p>
+        <p class="dim">Compáralo con el ejemplo del ternario (2.3): ambos resuelven el mismo problema (pares/impares con clase CSS distinta), pero uno usa <code class="inline">if/else</code> con varias líneas y el otro un ternario en una sola línea.</p>
+      </div>
+    </section>
+
+    <section class="block" id="s3">
+      <div class="block-head"><span class="idx">03</span><h2>Conceptos clave (glosario)</h2></div>
+      <table>
+        <tr><th>Término</th><th>Definición</th></tr>
+        <tr><td><span class="glossary-term">Estructura de control</span></td><td>Instrucción que altera el flujo lineal de ejecución de un programa (decisión o repetición)</td></tr>
+        <tr><td><span class="glossary-term">Condicional</span></td><td>Estructura que ejecuta un bloque de código solo si una condición es verdadera</td></tr>
+        <tr><td><span class="glossary-term">Operador ternario</span></td><td>Versión corta de if/else que devuelve un valor: <code class="inline">condicion ? siTrue : siFalse</code></td></tr>
+        <tr><td><span class="glossary-term">Short-circuit evaluation</span></td><td>Comportamiento de &&/|| de no evaluar el segundo operando si el resultado ya está determinado</td></tr>
+        <tr><td><span class="glossary-term">switch</span></td><td>Estructura que compara un valor contra múltiples case posibles</td></tr>
+        <tr><td><span class="glossary-term">Fall-through</span></td><td>Cuando la ejecución de un switch "cae" al siguiente case por falta de break</td></tr>
+        <tr><td><span class="glossary-term">Bucle (loop)</span></td><td>Estructura que repite un bloque de código mientras se cumpla una condición</td></tr>
+        <tr><td><span class="glossary-term">Iterable</span></td><td>Objeto que puede recorrerse elemento por elemento (arrays, strings, Map, Set, NodeList)</td></tr>
+        <tr><td><span class="glossary-term">break</span></td><td>Palabra clave que termina un bucle (o un switch) de inmediato</td></tr>
+        <tr><td><span class="glossary-term">continue</span></td><td>Palabra clave que salta la iteración actual de un bucle y continúa con la siguiente</td></tr>
+        <tr><td><span class="glossary-term">Bucle anidado</span></td><td>Un bucle completo dentro del cuerpo de otro bucle</td></tr>
+        <tr><td><span class="glossary-term">Bucle infinito</span></td><td>Bucle cuya condición de parada nunca se cumple, ejecutándose indefinidamente</td></tr>
+        <tr><td><span class="glossary-term">Propiedad enumerable</span></td><td>Propiedad de un objeto que aparece al iterar con for...in</td></tr>
+      </table>
+    </section>
+
+    <section class="block" id="s4">
+      <div class="block-head"><span class="idx">04</span><h2>¿Para qué sirve cada concepto?</h2></div>
+      <ul class="errors" style="--tick:true;">
+        <li style="border-bottom:1px solid var(--line);"><b>if / else if / else</b> → tomar decisiones simples o encadenadas basadas en condiciones.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Operador ternario</b> → asignaciones condicionales cortas y legibles en una línea (clases CSS, textos dinámicos).</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Operadores lógicos + short-circuit</b> → condiciones compuestas y patrones seguros como valores por defecto o acceso protegido.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>switch</b> → reemplazar cadenas largas de else if cuando comparas la misma variable contra múltiples valores discretos.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>for</b> → repetir algo un número exacto de veces, con control total sobre el contador.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>while / do...while</b> → repetir algo mientras se cumpla una condición desconocida de antemano.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>for...of</b> → recorrer valores de arrays/iterables de forma limpia.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>for...in</b> → inspeccionar las propiedades (claves) de un objeto dinámicamente.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>break / continue</b> → afinar el control dentro de un bucle sin reescribir toda su lógica.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Bucles anidados</b> → resolver problemas que requieren combinar dos dimensiones de datos.</li>
+        <li><b>Condicionales + bucles en el DOM</b> → generar interfaces dinámicas cuyo estilo o contenido cambia según cada elemento.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s5">
+      <div class="block-head"><span class="idx">05</span><h2>Ejemplos abstractos</h2></div>
+      <pre><code>if (<span class="ph">[condicion_1]</span>) {
+  <span class="ph">[instruccion_1]</span>;
+} else if (<span class="ph">[condicion_2]</span>) {
+  <span class="ph">[instruccion_2]</span>;
+} else {
+  <span class="ph">[instruccion_3]</span>;
+}</code></pre>
+      <p class="dim"><code class="inline">if, else if, else</code> son palabras reservadas, <b>fijas</b>. <code class="inline">{ }</code> son símbolos de cierre, fijos. <span class="glossary-term">[condicion_1]</span>, <span class="glossary-term">[condicion_2]</span> las define el estudiante y se pueden repetir tantos <code class="inline">else if</code> como se necesiten.</p>
+
+      <pre><code>const <span class="ph">[variable_resultado]</span> = (<span class="ph">[condicion]</span>) ? <span class="ph">[valor_si_true]</span> : <span class="ph">[valor_si_false]</span>;</code></pre>
+      <p class="dim">Los símbolos <code class="inline">?</code> y <code class="inline">:</code> son sintaxis fija del ternario. <span class="glossary-term">[variable_resultado]</span>, <span class="glossary-term">[condicion]</span>, <span class="glossary-term">[valor_si_true]</span>, <span class="glossary-term">[valor_si_false]</span> los define el estudiante.</p>
+
+      <pre><code>switch (<span class="ph">[variable_a_comparar]</span>) {
+  case <span class="ph">[valor_1]</span>:
+    <span class="ph">[instruccion_1]</span>;
+    break;
+  case <span class="ph">[valor_2]</span>:
+    <span class="ph">[instruccion_2]</span>;
+    break;
+  default:
+    <span class="ph">[instruccion_por_defecto]</span>;
+}</code></pre>
+      <p class="dim"><code class="inline">switch, case, default, break</code> son palabras reservadas, <b>fijas</b>; el <code class="inline">:</code> tras cada case/default es obligatorio. <span class="glossary-term">[variable_a_comparar]</span>, <span class="glossary-term">[valor_1]</span>, <span class="glossary-term">[valor_2]</span> los define el estudiante — se pueden agregar tantos case como se necesiten.</p>
+
+      <pre><code>for (<span class="ph">[inicializacion]</span>; <span class="ph">[condicion]</span>; <span class="ph">[incremento]</span>) {
+  <span class="ph">[instruccion_del_bucle]</span>;
+}</code></pre>
+      <p class="dim"><code class="inline">for</code> y los dos <code class="inline">;</code> internos son sintaxis fija, siempre en ese orden. <span class="glossary-term">[inicializacion]</span>, <span class="glossary-term">[condicion]</span>, <span class="glossary-term">[incremento]</span> los define el estudiante (típicamente <code class="inline">let i = 0</code>, <code class="inline">i < N</code>, <code class="inline">i++</code>, pero el nombre puede cambiar).</p>
+
+      <pre><code>while (<span class="ph">[condicion]</span>) {
+  <span class="ph">[instruccion_del_bucle]</span>;
+}
+
+do {
+  <span class="ph">[instruccion_del_bucle]</span>;
+} while (<span class="ph">[condicion]</span>);</code></pre>
+      <p class="dim"><code class="inline">while, do</code> son palabras reservadas, fijas. El <code class="inline">;</code> final tras <code class="inline">while([condicion])</code> en <code class="inline">do...while</code> es obligatorio y fijo — a diferencia del <code class="inline">while</code> normal.</p>
+
+      <pre><code>for (const <span class="ph">[nombre_elemento]</span> of <span class="ph">[iterable]</span>) {
+  <span class="ph">[instruccion_del_bucle]</span>;
+}
+
+for (const <span class="ph">[nombre_clave]</span> in <span class="ph">[objeto]</span>) {
+  <span class="ph">[instruccion_del_bucle]</span>;
+}</code></pre>
+      <p class="dim"><code class="inline">for, of, in, const</code> son palabras reservadas, fijas. <span class="glossary-term">[nombre_elemento]</span>, <span class="glossary-term">[nombre_clave]</span> los elige el estudiante. <span class="glossary-term">[iterable]</span>, <span class="glossary-term">[objeto]</span> son la variable a recorrer, definida previamente.</p>
+    </section>
+
+    <section class="block" id="s6">
+      <div class="block-head"><span class="idx">06</span><h2>Excepciones y casos especiales</h2></div>
+      <div class="callout warn"><span class="tag">Fall-through intencional</span>Varios case seguidos sin break entre ellos, compartiendo un mismo bloque de código, es una técnica válida (ej. agrupar "sabado" y "domingo"). El error solo ocurre cuando el fall-through <b>no es intencional</b>.</div>
+      <div class="callout warn"><span class="tag">do...while con condición falsa desde el inicio</span>El cuerpo se ejecuta igual una vez, aunque la condición ya sea falsa antes de empezar — a diferencia de while, que en ese caso no ejecutaría nunca el cuerpo.</div>
+      <div class="callout warn"><span class="tag">Bucles infinitos silenciosos</span>Una condición que parece correcta pero modifica la variable equivocada produce un bucle infinito sin ningún error de sintaxis — el código "se ve bien" pero nunca termina.</div>
+      <div class="callout warn"><span class="tag">for...in con arrays</span>Técnicamente funciona (los índices son claves enumerables), pero no se recomienda: puede iterar propiedades heredadas, no garantiza el orden numérico, y devuelve los índices como strings ("0", "1") en vez de números.</div>
+      <div class="callout warn"><span class="tag">break en bucles anidados</span>Un break dentro del bucle interno solo rompe el bucle interno, no el externo — para salir de ambos se necesitan técnicas adicionales (variable "bandera" o etiquetas label, poco usadas en código moderno).</div>
+      <div class="callout warn"><span class="tag">continue en for</span>Al usar continue dentro de un for, el incremento (i++) sí se sigue ejecutando antes de volver a evaluar la condición — no te saltas el incremento, solo el resto del cuerpo de esa iteración.</div>
+      <div class="callout warn"><span class="tag">Ternario anidado</span>Es válido anidar ternarios, pero más de un nivel de anidación reduce mucho la legibilidad; en ese caso se prefiere if/else if/else.</div>
+    </section>
+
+    <section class="block" id="s7">
+      <div class="block-head"><span class="idx">07</span><h2>Metáforas y ejemplos visuales</h2></div>
+      <div class="metaphor-grid">
+        <div class="metaphor-card"><span class="label">if / else if / else</span>Un semáforo de decisiones: si está en rojo (condición 1), te detienes; si no, revisas amarillo (condición 2); si tampoco, asumes verde (else) — solo se sigue un camino, nunca varios a la vez.</div>
+        <div class="metaphor-card"><span class="label">Operador ternario</span>Una bifurcación de un solo carril con letrero: "¿lloviendo? → toma paraguas : toma gafas de sol" — una decisión rápida, de una sola línea, que siempre entrega algo.</div>
+        <div class="metaphor-card"><span class="label">switch</span>Un casillero de correo con compartimentos etiquetados: la carta (el valor) se coloca directamente en el compartimento (case) que coincide con su etiqueta, sin revisar uno por uno con preguntas de sí/no.</div>
+        <div class="metaphor-card"><span class="label">Fall-through</span>Un casillero de correo sin separadores: si no cierras bien la carta en su compartimento (olvidas el break), se desliza también hacia los compartimentos siguientes.</div>
+        <div class="metaphor-card"><span class="label">for</span>Un contador de gimnasio que marca repeticiones: defines desde qué número empieza, hasta dónde llega, y de cuánto en cuánto sube — al llegar al límite, se detiene solo.</div>
+        <div class="metaphor-card"><span class="label">while</span>Seguir sirviendo agua en un vaso mientras no esté lleno: revisas la condición antes de cada vez que sirves; si el vaso ya está lleno desde el inicio, nunca sirves nada.</div>
+        <div class="metaphor-card"><span class="label">do...while</span>Probar un plato de comida antes de decidir si pides más: pruebas primero (el cuerpo se ejecuta sí o sí una vez) y después decides si continúas.</div>
+        <div class="metaphor-card"><span class="label">for...of</span>Repartir un mazo de cartas boca abajo: solo te importa la carta (el valor), no en qué posición del mazo estaba.</div>
+        <div class="metaphor-card"><span class="label">for...in</span>Revisar la lista de contenidos de una caja etiquetada (un objeto): te interesan las etiquetas (las claves) para saber qué hay adentro de cada una.</div>
+        <div class="metaphor-card"><span class="label">Bucle infinito</span>Una cinta de correr que nunca se apaga porque el botón de "stop" está desconectado: sigue moviéndose para siempre porque nada detiene la condición.</div>
+        <div class="metaphor-card"><span class="label">Bucles anidados</span>Un reloj: la manecilla de los segundos (bucle interno) da una vuelta completa por cada paso de la manecilla de los minutos (bucle externo).</div>
+      </div>
+    </section>
+
+    <section class="block" id="s8">
+      <div class="block-head"><span class="idx">08</span><h2>Errores típicos de un junior</h2></div>
+      <ul class="errors">
+        <li>Olvidar el <code class="inline">break</code> en un switch y no entender por qué se ejecutan varios case seguidos (fall-through no intencional).</li>
+        <li>Plantear mal la condición de un bucle (<code class="inline">while (i = 5)</code> en vez de <code class="inline">while (i === 5)</code>, usando asignación en vez de comparación).</li>
+        <li>Confundir <code class="inline">for...in</code> con <code class="inline">for...of</code> — usar for...in en un array esperando los valores y obtener los índices como strings.</li>
+        <li>Olvidar el <code class="inline">i++</code> (o modificar la variable equivocada) dentro de un while, provocando un bucle infinito.</li>
+        <li>Pensar que <code class="inline">continue</code> "detiene todo el bucle" cuando en realidad solo salta a la siguiente iteración.</li>
+        <li>Anidar demasiados ternarios y terminar con una línea imposible de leer, en vez de usar if/else if/else.</li>
+        <li>Usar <code class="inline">==</code> en vez de <code class="inline">===</code> dentro de condiciones, provocando coerción de tipos no deseada.</li>
+        <li>En bucles anidados, confundir cuál variable de índice pertenece a cuál bucle.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s9">
+      <div class="block-head"><span class="idx">09</span><h2>Preguntas de autoevaluación</h2></div>
+      <ol class="quiz-list">
+        <li>¿Puedo explicar la diferencia entre if/else y el operador ternario, y cuándo usar cada uno?</li>
+        <li>¿Entiendo qué es el short-circuit evaluation y puedo dar un ejemplo con && y otro con ||?</li>
+        <li>¿Puedo explicar qué es el fall-through en un switch y en qué caso es intencional vs. un error?</li>
+        <li>¿Sé explicar las tres partes de un for clásico (inicialización, condición, incremento) sin mirar el código?</li>
+        <li>¿Puedo explicar la diferencia exacta entre while y do...while con un ejemplo donde el resultado sea distinto?</li>
+        <li>¿Entiendo la diferencia entre for...of (valores) y for...in (claves), y por qué se evita for...in en arrays?</li>
+        <li>¿Puedo explicar la diferencia entre break y continue dentro de un bucle?</li>
+        <li>¿Puedo escribir un bucle anidado y explicar cuántas veces se ejecuta el bucle interno en total?</li>
+        <li>¿Sé identificar al menos dos causas comunes de un bucle infinito y cómo corregirlas?</li>
+        <li>¿Puedo explicar con mis propias palabras un ejemplo donde se combine un for con un if/else dentro para generar elementos del DOM?</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s10">
+      <div class="block-head"><span class="idx">10</span><h2>Checklist final de dominio</h2></div>
+      <ul class="check-list">
+        <li><input type="checkbox" id="c1"><label for="c1">Puedo escribir y explicar un if / else if / else con al menos tres condiciones</label></li>
+        <li><input type="checkbox" id="c2"><label for="c2">Puedo escribir un operador ternario y explicar qué devuelve</label></li>
+        <li><input type="checkbox" id="c3"><label for="c3">Entiendo y puedo aplicar short-circuit evaluation con && y ||</label></li>
+        <li><input type="checkbox" id="c4"><label for="c4">Puedo escribir un switch completo con break en cada case y un default</label></li>
+        <li><input type="checkbox" id="c5"><label for="c5">Identifico y puedo explicar el problema del fall-through</label></li>
+        <li><input type="checkbox" id="c6"><label for="c6">Puedo escribir un bucle for clásico y explicar sus tres partes</label></li>
+        <li><input type="checkbox" id="c7"><label for="c7">Puedo escribir un while y un do...while y explicar su diferencia con un ejemplo</label></li>
+        <li><input type="checkbox" id="c8"><label for="c8">Puedo escribir un for...of sobre un array y un for...in sobre un objeto</label></li>
+        <li><input type="checkbox" id="c9"><label for="c9">Uso correctamente break y continue dentro de un bucle</label></li>
+        <li><input type="checkbox" id="c10"><label for="c10">Puedo escribir un bucle anidado simple (ej. una cuadrícula de filas y columnas)</label></li>
+        <li><input type="checkbox" id="c11"><label for="c11">Identifico causas comunes de bucles infinitos y sé cómo evitarlas</label></li>
+        <li><input type="checkbox" id="c12"><label for="c12">Puedo combinar un bucle con un condicional dentro para generar elementos dinámicos en el DOM</label></li>
+        <li><input type="checkbox" id="c13"><label for="c13">Me siento en confianza de decir que "vi" esta clase completa</label></li>
+      </ul>
+      <p class="progress-note">Marca cada casilla a medida que repases — el progreso es solo visual en esta página.</p>
+    </section>
+
+    <section class="block" id="s11">
+      <div class="block-head"><span class="idx">11</span><h2>Recursos y lectura adicional</h2></div>
+      <div class="callout">
+        <span class="tag">MDN</span>
+        Control flow: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Control_flow_and_error_handling" target="_blank" rel="noopener" style="color: var(--teal);">developer.mozilla.org/.../Control_flow_and_error_handling</a>
+      </div>
+      <div class="callout">
+        <span class="tag">MDN</span>
+        Loops and iteration: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Loops_and_iteration" target="_blank" rel="noopener" style="color: var(--teal);">developer.mozilla.org/.../Loops_and_iteration</a>
+      </div>
+      <p class="dim">Herramientas útiles: VS Code, Node.js · Plataformas de práctica: CodePen, JSFiddle, HackerRank.</p>
+      <p class="dim">Nota: los enlaces y plataformas sugeridas pueden variar según lo que recomiende tu instructor o plataforma de curso específica.</p>
+    </section>
+
+    <section class="block" id="s12">
+      <div class="block-head"><span class="idx">12</span><h2>Próximas clases</h2></div>
+      <table>
+        <tr><th>Clase</th><th>Tema</th></tr>
+        <tr><td><b>Clase 4</b></td><td>Introducción a HTML y CSS</td></tr>
+        <tr><td><b>Clase 5</b></td><td>Interactividad con el DOM</td></tr>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    Formador: Steven Zuluaga Cortés · <a href="https://www.devseniorcode.com" target="_blank" rel="noopener">devseniorcode.com</a> · Academy@devseniorcode.com · @devseniorcode
+  </footer>
+
+</body>
+</html>
