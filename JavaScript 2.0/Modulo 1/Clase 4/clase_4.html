@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 4 — Introducción a HTML y CSS</title>
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/jetbrains-mono/2.304/JetBrainsMono.css');
+
+  :root{
+    --bg: #12151a;
+    --bg-alt: #181c23;
+    --surface: #1d222b;
+    --surface-hi: #242a35;
+    --line: #2a303b;
+    --text: #e7e4da;
+    --text-dim: #93998f;
+    --amber: #e8a33d;
+    --amber-dim: #a8763a;
+    --teal: #5fb3ad;
+    --red: #d97a6c;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Menlo, monospace;
+    --sans: 'IBM Plex Sans', Segoe UI, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,163,61,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(95,179,173,0.05), transparent 60%);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height:100vh;
+  }
+
+  /* Corner tag */
+  .corner-tag{
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--amber-dim);
+    color: var(--amber);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    padding: 7px 12px;
+    border-radius: 4px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  }
+  .corner-tag::before{
+    content: "● ";
+    color: var(--teal);
+  }
+
+  /* Terminal chrome header */
+  .term-bar{
+    max-width: 920px;
+    margin: 48px auto 0;
+    padding: 0 20px;
+  }
+  .term-window{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px 10px 0 0;
+    overflow:hidden;
+  }
+  .term-titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 10px 14px;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--line);
+  }
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.red{ background:#e0645a; }
+  .dot.yellow{ background:#e0b25a; }
+  .dot.green{ background:#5cbf7a; }
+  .term-title{
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .term-body{
+    padding: 34px 36px 30px;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--teal);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  h1.hero-title{
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.15;
+    margin: 10px 0 6px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .hero-title .prompt{ color: var(--amber); }
+  .hero-sub{
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 60ch;
+    margin: 10px 0 0;
+  }
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap: 10px 22px;
+    margin-top: 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .meta-row b{ color: var(--text); font-weight: 600; }
+
+  /* Table of contents */
+  nav.toc{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 22px 20px 0;
+  }
+  .toc-inner{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0 0 10px 10px;
+    padding: 20px 24px 22px;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 20px;
+  }
+  @media (max-width: 640px){ .toc-inner{ grid-template-columns: 1fr; } }
+  .toc-inner a{
+    color: var(--text-dim);
+    text-decoration:none;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    display:flex;
+    gap: 8px;
+  }
+  .toc-inner a:hover{ background: var(--surface-hi); color: var(--amber); }
+  .toc-inner a span.n{ color: var(--amber-dim); }
+
+  main{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  section.block{
+    margin-bottom: 44px;
+    scroll-margin-top: 30px;
+  }
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .block-head .idx{
+    font-family: var(--mono);
+    color: var(--amber);
+    font-size: 14px;
+  }
+  .block-head h2{
+    font-family: var(--mono);
+    font-size: 19px;
+    margin: 0;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  p{ color: var(--text); font-size: 15px; }
+  p.dim{ color: var(--text-dim); }
+
+  .subsection{
+    margin-bottom: 26px;
+    padding-left: 16px;
+    border-left: 2px solid var(--line);
+  }
+  .subsection h3{
+    font-family: var(--mono);
+    font-size: 15.5px;
+    color: var(--teal);
+    margin: 0 0 8px;
+  }
+
+  code, pre code{
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  code.inline{
+    background: var(--surface-hi);
+    color: var(--amber);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+  pre{
+    background: #0e1116;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+  pre code{ color: #c9d6d8; }
+  pre .cmt{ color: var(--text-dim); }
+  pre .flag{ color: var(--amber); }
+  pre .ph{ color: var(--teal); }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td{
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  th{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: var(--surface-hi);
+  }
+  td b{ color: var(--text); }
+  tr:hover td{ background: rgba(255,255,255,0.02); }
+
+  .callout{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--teal);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 14.5px;
+  }
+  .callout.warn{ border-left-color: var(--red); }
+  .callout .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    display:block;
+    margin-bottom: 6px;
+  }
+
+  .metaphor-grid{
+    display: grid;
+    gap: 14px;
+  }
+  .metaphor-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .metaphor-card .label{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display:block;
+    margin-bottom: 8px;
+  }
+
+  ul.errors{ list-style: none; padding: 0; margin: 0; }
+  ul.errors li{
+    position: relative;
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  ul.errors li::before{
+    content: "✕";
+    position:absolute; left: 0; top: 10px;
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  ul.errors li:last-child{ border-bottom: none; }
+
+  .quiz-list{ list-style: none; padding: 0; margin: 0; counter-reset: q; }
+  .quiz-list li{
+    counter-increment: q;
+    padding: 12px 14px 12px 44px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+  }
+  .quiz-list li::before{
+    content: counter(q, decimal-leading-zero);
+    position: absolute;
+    left: 12px; top: 12px;
+    font-family: var(--mono);
+    color: var(--amber-dim);
+    font-size: 13px;
+  }
+
+  .check-list{ list-style:none; padding:0; margin:0; }
+  .check-list li{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .check-list li:last-child{ border-bottom:none; }
+  .check-list input[type=checkbox]{
+    appearance: none;
+    -webkit-appearance:none;
+    width: 18px; height: 18px;
+    min-width:18px;
+    border: 1px solid var(--amber-dim);
+    border-radius: 4px;
+    background: var(--bg-alt);
+    cursor:pointer;
+    margin-top: 2px;
+    position: relative;
+  }
+  .check-list input[type=checkbox]:checked{
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+  .check-list input[type=checkbox]:checked::after{
+    content:"✓";
+    position:absolute; left:2px; top:-2px;
+    color: #12151a;
+    font-size: 13px;
+    font-weight:700;
+  }
+  .check-list label{ cursor:pointer; }
+  .check-list input[type=checkbox]:checked + label{
+    color: var(--text-dim);
+    text-decoration: line-through;
+  }
+
+  .glossary-term{ color: var(--amber); font-family: var(--mono); font-size: 13.5px; }
+
+  .box-diagram{
+    font-family: var(--mono);
+    font-size: 13px;
+    background: #0e1116;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 16px 18px;
+    color: #c9d6d8;
+    overflow-x:auto;
+    white-space: pre;
+    line-height: 1.5;
+  }
+
+  .swatch-row{ display:flex; gap:10px; flex-wrap:wrap; margin: 10px 0; }
+  .swatch{
+    display:flex; align-items:center; gap:8px;
+    background: var(--surface); border:1px solid var(--line);
+    border-radius: 6px; padding: 6px 10px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--text-dim);
+  }
+  .swatch i{ width:14px; height:14px; border-radius:3px; display:inline-block; border:1px solid var(--line); }
+
+  footer{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: var(--mono);
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  footer a{ color: var(--teal); text-decoration:none; }
+
+  .progress-note{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  @media (max-width: 560px){
+    .term-body{ padding: 24px 20px 22px; }
+    main{ padding: 30px 16px 80px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="corner-tag">JS-M1-C4</div>
+
+  <div class="term-bar">
+    <div class="term-window">
+      <div class="term-titlebar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <div class="term-title">clase_4.md — ~/ideade/js-mean-mastery/m1-u1</div>
+      </div>
+      <div class="term-body">
+        <span class="eyebrow">JavaScript MEAN Mastery · Módulo 1 · Unidad 1</span>
+        <h1 class="hero-title"><span class="prompt">$</span> Introducción a HTML y CSS</h1>
+        <p class="hero-sub">Guía de estudio completa de la Clase 4 — estructura de un documento HTML, etiquetas semánticas, formularios, formas de vincular CSS, selectores, especificidad, herencia, Box Model y unidades de medida.</p>
+        <div class="meta-row">
+          <span>Formador: <b>Steven Zuluaga Cortés</b></span>
+          <span>Duración: <b>3 horas</b></span>
+          <span>Nivel: <b>Junior</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-inner">
+      <a href="#s1"><span class="n">01</span> Índice de subtemas</a>
+      <a href="#s2"><span class="n">02</span> Explicación por subtema</a>
+      <a href="#s3"><span class="n">03</span> Glosario de conceptos</a>
+      <a href="#s4"><span class="n">04</span> ¿Para qué sirve?</a>
+      <a href="#s5"><span class="n">05</span> Ejemplos abstractos</a>
+      <a href="#s6"><span class="n">06</span> Excepciones y casos especiales</a>
+      <a href="#s7"><span class="n">07</span> Metáforas visuales</a>
+      <a href="#s8"><span class="n">08</span> Errores típicos</a>
+      <a href="#s9"><span class="n">09</span> Autoevaluación</a>
+      <a href="#s10"><span class="n">10</span> Checklist final</a>
+      <a href="#s11"><span class="n">11</span> Recursos adicionales</a>
+      <a href="#s12"><span class="n">12</span> Próximas clases</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <section class="block" id="s1">
+      <div class="block-head"><span class="idx">01</span><h2>Índice de subtemas</h2></div>
+      <ol style="color:var(--text); font-size:15px; padding-left:22px;">
+        <li>¿Qué es HTML y qué es CSS? Roles separados</li>
+        <li>Anatomía de un tag HTML (elemento, apertura, atributo, contenido, cierre)</li>
+        <li>Estructura base de un documento: <code class="inline">&lt;!DOCTYPE html&gt;</code>, <code class="inline">&lt;html&gt;</code>, <code class="inline">&lt;head&gt;</code>, <code class="inline">&lt;body&gt;</code></li>
+        <li>Meta etiquetas esenciales: <code class="inline">charset</code>, <code class="inline">viewport</code>, <code class="inline">title</code></li>
+        <li>Etiquetas de texto: <code class="inline">h1</code>–<code class="inline">h6</code>, <code class="inline">p</code>, <code class="inline">span</code>, <code class="inline">strong</code>, <code class="inline">em</code></li>
+        <li>Etiquetas semánticas de estructura: <code class="inline">header</code>, <code class="inline">nav</code>, <code class="inline">main</code>, <code class="inline">section</code>, <code class="inline">article</code>, <code class="inline">aside</code>, <code class="inline">footer</code></li>
+        <li>Listas: <code class="inline">ul</code>, <code class="inline">ol</code>, <code class="inline">li</code></li>
+        <li>Enlaces: <code class="inline">a href</code></li>
+        <li>Imágenes: <code class="inline">img src alt</code></li>
+        <li>Formularios básicos: <code class="inline">form</code>, <code class="inline">input</code>, <code class="inline">label</code>, <code class="inline">button</code>, tipos de <code class="inline">input</code></li>
+        <li>Atributos globales: <code class="inline">class</code>, <code class="inline">id</code>, <code class="inline">style</code>, <code class="inline">title</code></li>
+        <li>Formas de vincular CSS: inline, interno (<code class="inline">&lt;style&gt;</code>), externo (<code class="inline">&lt;link&gt;</code>)</li>
+        <li>Sintaxis básica de CSS: regla, selector, propiedad, valor, comentarios</li>
+        <li>Selectores CSS: etiqueta, clase, id, universal, descendiente</li>
+        <li>Especificidad CSS (qué gana en un conflicto)</li>
+        <li>Herencia de estilos (propiedades que heredan vs no)</li>
+        <li>Propiedades de texto: <code class="inline">color</code>, <code class="inline">font-size</code>, <code class="inline">font-family</code>, <code class="inline">font-weight</code>, <code class="inline">text-align</code></li>
+        <li>Modelo de caja (Box Model): <code class="inline">margin</code>, <code class="inline">border</code>, <code class="inline">padding</code>, <code class="inline">width</code>, <code class="inline">height</code></li>
+        <li><code class="inline">box-sizing</code>: <code class="inline">content-box</code> vs <code class="inline">border-box</code></li>
+        <li>Unidades de medida: <code class="inline">px</code>, <code class="inline">%</code>, <code class="inline">em</code>, <code class="inline">rem</code></li>
+        <li>Colores: nombres, hexadecimal, <code class="inline">rgb()</code>, <code class="inline">rgba()</code></li>
+        <li>Buenas prácticas y organización del código</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s2">
+      <div class="block-head"><span class="idx">02</span><h2>Explicación detallada por subtema</h2></div>
+
+      <div class="subsection">
+        <h3>2.1 · ¿Qué es HTML y qué es CSS?</h3>
+        <p><b>HTML</b> (HyperText Markup Language) no es un lenguaje de programación: es un lenguaje de <b>marcado</b>. Describe la <b>estructura y el significado</b> del contenido — "esto es un título", "esto es una lista" — sin decidir colores ni tamaños.</p>
+        <p><b>CSS</b> (Cascading Style Sheets) decide <b>cómo se ve</b> ese contenido: colores, tipografía, espaciado, posición. "Cascading" (en cascada) es clave: los estilos se combinan según reglas de prioridad (ver especificidad, 2.15).</p>
+        <p class="dim"><b>Por qué se separan:</b> mezclar estructura y presentación obliga a tocar el HTML por cada cambio visual. Separarlos permite cambiar el "traje" (CSS) sin tocar el "esqueleto" (HTML) — base de la accesibilidad y el SEO.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.2 · Anatomía de un tag HTML</h3>
+        <pre><code>&lt;a href="https://escuelanew.com"&gt;Visita mi Web&lt;/a&gt;</code></pre>
+        <p><b>Elemento:</b> la etiqueta completa, apertura + contenido + cierre.<br>
+        <b>Etiqueta de apertura:</b> <code class="inline">&lt;a href="..."&gt;</code> · <b>Nombre del atributo:</b> <code class="inline">href</code> · <b>Valor del atributo:</b> <code class="inline">"https://escuelanew.com"</code><br>
+        <b>Contenido:</b> <code class="inline">Visita mi Web</code> · <b>Etiqueta de cierre:</b> <code class="inline">&lt;/a&gt;</code></p>
+        <p class="dim"><b>Con contenido</b> (necesitan apertura y cierre): <code class="inline">&lt;p&gt;Texto&lt;/p&gt;</code>. <b>Auto-cerradas</b> (sin cierre): <code class="inline">&lt;img /&gt;</code>, <code class="inline">&lt;br /&gt;</code>, <code class="inline">&lt;hr /&gt;</code>.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.3 · Estructura base de un documento HTML</h3>
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;Mi primera página&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Hola mundo&lt;/h1&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <p class="dim"><code class="inline">&lt;!DOCTYPE html&gt;</code> le dice al navegador "interpreta esto como HTML5"; sin ella puede activarse "modo quirks" y romper el CSS. <code class="inline">&lt;head&gt;</code> guarda metadatos (no se muestra); <code class="inline">&lt;body&gt;</code> contiene todo el contenido visible.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.4 · Meta etiquetas esenciales</h3>
+        <p><code class="inline">&lt;meta charset="UTF-8" /&gt;</code> define la codificación de caracteres (sin ella, tildes y "ñ" pueden verse rotas). <code class="inline">&lt;meta name="viewport" ...&gt;</code> es indispensable para que la página se vea bien en móviles. <code class="inline">&lt;title&gt;</code> aparece en la pestaña del navegador y en resultados de buscadores.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.5 · Etiquetas de texto</h3>
+        <table>
+          <tr><th>Etiqueta</th><th>Uso</th><th>Nota</th></tr>
+          <tr><td><code class="inline">h1</code>–<code class="inline">h6</code></td><td>Encabezados, mayor a menor jerarquía</td><td>Idealmente un solo <code class="inline">h1</code> por página</td></tr>
+          <tr><td><code class="inline">p</code></td><td>Párrafo</td><td>Bloque, ocupa toda la línea</td></tr>
+          <tr><td><code class="inline">span</code></td><td>Contenedor en línea sin significado semántico</td><td>Para estilizar parte de un texto</td></tr>
+          <tr><td><code class="inline">strong</code></td><td>Importancia fuerte</td><td>Semántico + negrita por defecto</td></tr>
+          <tr><td><code class="inline">em</code></td><td>Énfasis</td><td>Semántico + cursiva por defecto</td></tr>
+        </table>
+        <div class="callout warn"><span class="tag">Diferencia clave</span><code class="inline">strong</code>/<code class="inline">em</code> tienen significado semántico (los lectores de pantalla los acentúan); <code class="inline">b</code>/<code class="inline">i</code> solo cambian la apariencia, sin significado.</div>
+      </div>
+
+      <div class="subsection">
+        <h3>2.6 · Etiquetas semánticas de estructura</h3>
+        <pre><code>&lt;header&gt;Cabecera del sitio o de una sección&lt;/header&gt;
+&lt;nav&gt;Menú de navegación&lt;/nav&gt;
+&lt;main&gt;Contenido principal (uno solo por página)&lt;/main&gt;
+&lt;section&gt;Agrupa contenido relacionado&lt;/section&gt;
+&lt;article&gt;Contenido autónomo y reutilizable&lt;/article&gt;
+&lt;aside&gt;Contenido secundario (ej. sidebar)&lt;/aside&gt;
+&lt;footer&gt;Pie de página o de sección&lt;/footer&gt;</code></pre>
+        <p class="dim">Antes de HTML5 todo era <code class="inline">div</code>: un <code class="inline">div</code> no dice nada sobre el contenido. Las etiquetas semánticas resuelven esto — <b>el nombre de la etiqueta ya comunica su función</b> (accesibilidad, SEO).</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.7 · Listas</h3>
+        <pre><code>&lt;ul&gt;
+  &lt;li&gt;Elemento sin orden&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Primer paso&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+        <p class="dim"><code class="inline">ul</code> (unordered): viñetas, el orden no importa. <code class="inline">ol</code> (ordered): numerada, el orden sí importa. <code class="inline">li</code> siempre dentro de <code class="inline">ul</code> u <code class="inline">ol</code>.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.8 · Enlaces</h3>
+        <pre><code>&lt;a href="https://ejemplo.com" target="_blank" rel="noopener"&gt;Ir al sitio&lt;/a&gt;
+&lt;a href="#seccion2"&gt;Ir a la sección 2&lt;/a&gt;
+&lt;a href="mailto:correo@ejemplo.com"&gt;Escríbenos&lt;/a&gt;</code></pre>
+        <p class="dim"><code class="inline">href</code> puede ser una URL externa, un ancla (<code class="inline">#id</code>) o un protocolo especial (<code class="inline">mailto:</code>, <code class="inline">tel:</code>). <code class="inline">target="_blank"</code> abre en nueva pestaña; se recomienda acompañarlo de <code class="inline">rel="noopener"</code> por seguridad.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.9 · Imágenes</h3>
+        <pre><code>&lt;img src="logo.png" alt="Logo de la empresa" width="200" height="100" /&gt;</code></pre>
+        <p class="dim"><code class="inline">src</code>: ruta del archivo. <code class="inline">alt</code>: texto alternativo, <b>obligatorio</b> por accesibilidad y porque se muestra si la imagen no carga. Es auto-cerrada, no lleva <code class="inline">&lt;/img&gt;</code>.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.10 · Formularios básicos</h3>
+        <pre><code>&lt;form action="/enviar" method="POST"&gt;
+  &lt;label for="nombre"&gt;Nombre:&lt;/label&gt;
+  &lt;input type="text" id="nombre" name="nombre" placeholder="Escribe tu nombre" /&gt;
+
+  &lt;label for="correo"&gt;Correo:&lt;/label&gt;
+  &lt;input type="email" id="correo" name="correo" required /&gt;
+
+  &lt;input type="checkbox" id="acepto" name="acepto" /&gt;
+  &lt;label for="acepto"&gt;Acepto términos&lt;/label&gt;
+
+  &lt;button type="submit"&gt;Enviar&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+        <p class="dim"><b>Tipos de input comunes:</b> <code class="inline">text</code>, <code class="inline">email</code>, <code class="inline">password</code>, <code class="inline">number</code>, <code class="inline">checkbox</code>, <code class="inline">radio</code>, <code class="inline">date</code>, <code class="inline">file</code>, <code class="inline">submit</code>.</p>
+        <div class="callout"><span class="tag">Clave</span>El valor de <code class="inline">label for="..."</code> debe coincidir con el <code class="inline">id</code> del input correspondiente — así, al hacer clic en el texto, el foco va al input.</div>
+      </div>
+
+      <div class="subsection">
+        <h3>2.11 · Atributos globales</h3>
+        <p><code class="inline">id</code>: identificador <b>único</b> en todo el documento. <code class="inline">class</code>: puede <b>repetirse</b>, y un elemento puede tener varias separadas por espacio: <code class="inline">class="tarjeta destacada"</code>. <code class="inline">style</code>: CSS directo en el elemento, máxima prioridad en la cascada. <code class="inline">title</code>: tooltip al pasar el mouse.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.12 · Formas de vincular CSS</h3>
+        <pre><code><span class="cmt">/* 1. Inline */</span>
+&lt;p style="color: blue;"&gt;Texto azul&lt;/p&gt;
+
+<span class="cmt">/* 2. Interno, dentro de &lt;head&gt; */</span>
+&lt;style&gt;
+  p { color: blue; }
+&lt;/style&gt;
+
+<span class="cmt">/* 3. Externo — la mejor práctica */</span>
+&lt;link rel="stylesheet" href="styles.css" /&gt;</code></pre>
+        <p class="dim"><b>Por qué externo:</b> el navegador puede cachearlo (se reutiliza en varias páginas), el código queda organizado, y varios HTML pueden compartir el mismo diseño.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.13 · Sintaxis básica de CSS</h3>
+        <pre><code><span class="ph">selector</span> {
+  <span class="ph">propiedad</span>: <span class="ph">valor</span>; <span class="cmt">/* declaración */</span>
+}</code></pre>
+        <p class="dim">Selector + bloque de declaraciones = <b>regla CSS</b>. Ej: <code class="inline">p { color: navy; font-size: 16px; }</code>.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.14 · Selectores CSS</h3>
+        <pre><code><span class="cmt">/* Por etiqueta: TODOS los &lt;p&gt; */</span>
+p { color: black; }
+
+<span class="cmt">/* Por clase: class="destacado" */</span>
+.destacado { color: orange; }
+
+<span class="cmt">/* Por id: único */</span>
+#encabezado { background-color: gray; }
+
+<span class="cmt">/* Universal: TODOS los elementos */</span>
+* { margin: 0; padding: 0; }
+
+<span class="cmt">/* Descendiente: &lt;li&gt; dentro de &lt;ul&gt; */</span>
+ul li { list-style: none; }</code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.15 · Especificidad CSS</h3>
+        <p>Cuando dos reglas se contradicen, gana la de <b>mayor especificidad</b> (no la escrita después, salvo empate).</p>
+        <pre><code>p { color: black; }            <span class="cmt">// especificidad baja</span>
+.destacado { color: orange; }  <span class="cmt">// gana sobre "p"</span>
+#titulo { color: red; }        <span class="cmt">// gana sobre ".destacado"</span></code></pre>
+        <p class="dim">Orden de mayor a menor peso: <code class="inline">style</code> inline → <code class="inline">#id</code> → <code class="inline">.clase</code> → etiqueta → <code class="inline">*</code> universal. <code class="inline">!important</code> fuerza a ganar sin importar especificidad, pero se considera mala práctica.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.16 · Herencia de estilos</h3>
+        <p>Algunas propiedades <b>heredan</b> automáticamente a los hijos (<code class="inline">color</code>, <code class="inline">font-family</code>, <code class="inline">font-size</code>, <code class="inline">text-align</code>). Otras <b>no heredan</b> (<code class="inline">margin</code>, <code class="inline">padding</code>, <code class="inline">border</code>, <code class="inline">width</code>, <code class="inline">height</code>) porque no tendría sentido que un hijo copie el tamaño de caja de su padre.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.17 · Propiedades de texto</h3>
+        <pre><code>p {
+  color: #333333;
+  font-size: 18px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-weight: bold;
+  text-align: center;
+}</code></pre>
+        <p class="dim"><code class="inline">font-family</code> es una lista de preferencia: si el navegador no tiene la primera fuente, prueba la siguiente; el genérico final (<code class="inline">sans-serif</code>) es el respaldo garantizado.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.18 · Modelo de caja (Box Model)</h3>
+        <div class="box-diagram">┌─────────────────────────────┐
+│           margin             │  ← espacio FUERA del elemento
+│  ┌───────────────────────┐   │
+│  │        border          │   │  ← borde del elemento
+│  │  ┌─────────────────┐  │   │
+│  │  │     padding       │  │   │  ← espacio interno
+│  │  │  ┌───────────┐   │  │   │
+│  │  │  │  content   │   │  │   │  ← contenido real
+│  │  │  └───────────┘   │  │   │
+│  │  └─────────────────┘  │   │
+│  └───────────────────────┘   │
+└─────────────────────────────┘</div>
+        <pre><code>.caja {
+  width: 200px;
+  height: 100px;
+  padding: 20px;
+  border: 2px solid black;
+  margin: 10px;
+}</code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.19 · box-sizing: content-box vs border-box</h3>
+        <pre><code>.caja-default {
+  box-sizing: content-box; <span class="cmt">/* valor por defecto */</span>
+  width: 200px;
+  padding: 20px;
+  border: 5px solid black;
+  <span class="cmt">/* ancho REAL = 200 + 20+20 (padding) + 5+5 (border) = 250px */</span>
+}
+
+.caja-border-box {
+  box-sizing: border-box;
+  width: 200px;
+  padding: 20px;
+  border: 5px solid black;
+  <span class="cmt">/* ancho REAL = 200px, se descuenta del content */</span>
+}</code></pre>
+        <p class="dim">📌 Práctica común en la industria: <code class="inline">* { box-sizing: border-box; }</code> para que los cálculos de tamaño sean predecibles.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.20 · Unidades de medida</h3>
+        <table>
+          <tr><th>Unidad</th><th>Tipo</th><th>Se calcula respecto a...</th></tr>
+          <tr><td><code class="inline">px</code></td><td>Absoluta</td><td>Píxeles fijos, no cambia</td></tr>
+          <tr><td><code class="inline">%</code></td><td>Relativa</td><td>El tamaño del elemento padre</td></tr>
+          <tr><td><code class="inline">em</code></td><td>Relativa</td><td>El font-size del padre</td></tr>
+          <tr><td><code class="inline">rem</code></td><td>Relativa</td><td>El font-size de la raíz (<code class="inline">html</code>)</td></tr>
+        </table>
+        <pre><code>html { font-size: 16px; }
+.padre { font-size: 20px; }
+.hijo-em { font-size: 1.5em; }   <span class="cmt">/* 1.5 × 20px = 30px */</span>
+.hijo-rem { font-size: 1.5rem; } <span class="cmt">/* 1.5 × 16px = 24px, sin importar el padre */</span></code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.21 · Colores</h3>
+        <pre><code>.a { color: red; }                    <span class="cmt">/* nombre predefinido */</span>
+.b { color: #ff0000; }                <span class="cmt">/* hexadecimal */</span>
+.c { color: rgb(255, 0, 0); }         <span class="cmt">/* rgb: 0-255 por canal */</span>
+.d { color: rgba(255, 0, 0, 0.5); }   <span class="cmt">/* rgba: + alpha 0 a 1 */</span></code></pre>
+        <div class="swatch-row">
+          <span class="swatch"><i style="background:red;"></i> red</span>
+          <span class="swatch"><i style="background:#ff0000;"></i> #ff0000</span>
+          <span class="swatch"><i style="background:rgb(255,0,0);"></i> rgb(255,0,0)</span>
+          <span class="swatch"><i style="background:rgba(255,0,0,0.5);"></i> rgba(255,0,0,0.5)</span>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>2.22 · Buenas prácticas y organización</h3>
+        <p class="dim">Separar HTML de CSS en archivos externos · usar etiquetas semánticas en vez de <code class="inline">div</code> genéricos · nombrar clases por propósito, no por apariencia (<code class="inline">.card-destacada</code> mejor que <code class="inline">.texto-rojo</code>) · indentar consistentemente · comentar bloques complejos.</p>
+      </div>
+    </section>
+
+    <section class="block" id="s3">
+      <div class="block-head"><span class="idx">03</span><h2>Conceptos clave (glosario)</h2></div>
+      <table>
+        <tr><th>Término</th><th>Definición</th></tr>
+        <tr><td><span class="glossary-term">Etiqueta (tag)</span></td><td>Marca de HTML que delimita un elemento, ej. <code class="inline">&lt;p&gt;</code></td></tr>
+        <tr><td><span class="glossary-term">Elemento</span></td><td>Etiqueta de apertura + contenido + etiqueta de cierre</td></tr>
+        <tr><td><span class="glossary-term">Atributo</span></td><td>Información adicional dentro de la etiqueta de apertura (<code class="inline">nombre="valor"</code>)</td></tr>
+        <tr><td><span class="glossary-term">DOCTYPE</span></td><td>Declaración que indica al navegador la versión de HTML a interpretar</td></tr>
+        <tr><td><span class="glossary-term">Etiqueta semántica</span></td><td>Etiqueta cuyo nombre describe el significado del contenido que envuelve</td></tr>
+        <tr><td><span class="glossary-term">Selector CSS</span></td><td>Patrón que indica a qué elemento(s) se aplica una regla</td></tr>
+        <tr><td><span class="glossary-term">Especificidad</span></td><td>Sistema de "peso" que decide qué regla CSS gana en un conflicto</td></tr>
+        <tr><td><span class="glossary-term">Herencia</span></td><td>Transmisión automática de ciertos valores CSS de un padre a sus hijos</td></tr>
+        <tr><td><span class="glossary-term">Box Model</span></td><td>Modelo que describe cómo se compone visualmente cada elemento: content, padding, border, margin</td></tr>
+        <tr><td><span class="glossary-term">box-sizing</span></td><td>Propiedad que define si width/height incluyen o no padding y border</td></tr>
+        <tr><td><span class="glossary-term">Unidad relativa</span></td><td>Unidad cuyo valor depende de otro elemento de referencia (%, em, rem)</td></tr>
+        <tr><td><span class="glossary-term">Cascada</span></td><td>Orden y reglas de prioridad con las que se combinan los estilos CSS</td></tr>
+        <tr><td><span class="glossary-term">id</span></td><td>Atributo identificador único de un elemento</td></tr>
+        <tr><td><span class="glossary-term">class</span></td><td>Atributo que agrupa elementos que comparten estilo, reutilizable</td></tr>
+      </table>
+    </section>
+
+    <section class="block" id="s4">
+      <div class="block-head"><span class="idx">04</span><h2>¿Para qué sirve cada concepto?</h2></div>
+      <ul class="errors">
+        <li><b>DOCTYPE + estructura base</b> → garantiza que el navegador renderice de forma consistente y moderna, evitando modo "quirks".</li>
+        <li><b>Meta viewport</b> → hace que la web sea usable en celulares, requisito básico de cualquier sitio actual.</li>
+        <li><b>Etiquetas semánticas</b> → mejoran el SEO y la accesibilidad para lectores de pantalla.</li>
+        <li><b>class vs id</b> → class reutiliza el mismo estilo en múltiples elementos; id apunta a un elemento único (ej. para JavaScript o un ancla).</li>
+        <li><b>CSS externo</b> → mantiene un solo archivo de estilos para todo un sitio, facilitando cambios globales.</li>
+        <li><b>Especificidad</b> → evita el clásico "puse el estilo pero no se aplica".</li>
+        <li><b>Box model / box-sizing</b> → fundamental para maquetar sin sorpresas de tamaño.</li>
+        <li><b>Unidades relativas (rem, %)</b> → permiten diseños responsivos sin recalcular todo a mano.</li>
+        <li><b>Formularios</b> → puerta de entrada para que el usuario envíe datos (login, contacto, registro).</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s5">
+      <div class="block-head"><span class="idx">05</span><h2>Ejemplos abstractos</h2></div>
+
+      <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;&lt;/h1&gt;
+    &lt;p&gt;&lt;/p&gt;
+    &lt;ul&gt;&lt;li&gt;&lt;/li&gt;&lt;/ul&gt;
+    &lt;a href=""&gt;&lt;/a&gt;
+    &lt;img src="" alt="" /&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <p class="dim"><code class="inline">html, head, body, h1...h6, p, ul, li, a, img, form, input, label</code> son nombres de etiquetas <b>fijos</b>, no se inventan. <code class="inline">href, src, alt, type, for</code> son nombres de atributos <b>fijos</b>. <code class="inline">color, margin, padding, width, height, font-size, box-sizing</code> son propiedades CSS <b>fijas</b>.</p>
+
+      <pre><code>&lt;div class="<span class="ph">[nombre_clase_1]</span>" id="<span class="ph">[id_unico_1]</span>"&gt;
+  &lt;p class="<span class="ph">[nombre_clase_1]</span>"&gt;Repite la misma clase, es válido&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+      <pre><code>.<span class="ph">[nombre_clase_1]</span> { color: <span class="ph">[valor_color_1]</span>; }
+#<span class="ph">[id_unico_1]</span> { padding: <span class="ph">[valor_medida_1]</span>; }</code></pre>
+      <p class="dim"><span class="glossary-term">[nombre_clase_1]</span> se puede <b>repetir</b> en múltiples elementos y el estudiante elige el nombre. <span class="glossary-term">[id_unico_1]</span> lo elige el estudiante, pero <b>no se puede repetir</b>: cada id debe ser único en todo el documento. <span class="glossary-term">[valor_color_1]</span>, <span class="glossary-term">[valor_medida_1]</span> son valores libres (ej. <code class="inline">red</code>, <code class="inline">20px</code>), deben respetar el formato válido de la propiedad.</p>
+
+      <table>
+        <tr><th>Elemento</th><th>¿Se puede renombrar?</th><th>¿Se puede repetir?</th></tr>
+        <tr><td>Nombre de etiqueta (<code class="inline">div, p, h1</code>...)</td><td>✕ No, fijo del lenguaje</td><td>✓ Sí, todas las que quieras</td></tr>
+        <tr><td>Nombre de atributo (<code class="inline">href, src, class</code>...)</td><td>✕ No, fijo del lenguaje</td><td>✓ Sí, en distintos elementos</td></tr>
+        <tr><td>Valor de <code class="inline">class</code></td><td>✓ Sí, lo elige el estudiante</td><td>✓ Sí, en múltiples elementos</td></tr>
+        <tr><td>Valor de <code class="inline">id</code></td><td>✓ Sí, lo elige el estudiante</td><td>✕ No, debe ser único</td></tr>
+        <tr><td>Nombre de propiedad CSS (<code class="inline">color, margin</code>...)</td><td>✕ No, fijo del lenguaje</td><td>✓ Sí, en múltiples reglas</td></tr>
+        <tr><td>Valor de una propiedad CSS (<code class="inline">red, 20px</code>...)</td><td>✓ Sí, dentro de valores válidos</td><td>✓ Sí, en múltiples reglas</td></tr>
+      </table>
+    </section>
+
+    <section class="block" id="s6">
+      <div class="block-head"><span class="idx">06</span><h2>Excepciones y casos especiales</h2></div>
+      <div class="callout warn"><span class="tag">id único vs class repetible</span>Si por error se repite un id, la página sigue "funcionando" visualmente, pero es <b>inválido</b> y puede causar bugs graves en JavaScript (<code class="inline">getElementById</code> solo devuelve el primero) y fallar en validadores HTML.</div>
+      <div class="callout warn"><span class="tag">Especificidad no es "quién está más abajo"</span>A igual especificidad (dos clases), gana el escrito después. Si uno tiene mayor especificidad (id vs clase), gana ese sin importar el orden.</div>
+      <div class="callout warn"><span class="tag">Herencia no aplica a todo</span>Propiedades de "caja" (margin, padding, border, width) <b>no heredan</b>; propiedades de texto (color, font-family) <b>sí heredan</b> — confusión frecuente en principiantes.</div>
+      <div class="callout warn"><span class="tag">box-sizing cambia el layout</span>El mismo CSS con content-box vs border-box produce cajas de tamaño final distinto; por eso frameworks como Bootstrap o Tailwind fuerzan border-box globalmente.</div>
+      <div class="callout warn"><span class="tag">em vs rem</span>Anidar varios elementos con em produce un efecto acumulativo en cascada; rem evita ese efecto al ser siempre relativo a la raíz.</div>
+      <div class="callout warn"><span class="tag">Etiquetas auto-cerradas</span><code class="inline">img, br, input, meta</code> no tienen contenido ni cierre; intentar cerrarlas con <code class="inline">&lt;/img&gt;</code> es un error.</div>
+      <div class="callout warn"><span class="tag">label for depende del id</span>Si el <code class="inline">for</code> no coincide con ningún id, el label pierde su función de accesibilidad — falla silenciosa, sin error visible.</div>
+      <div class="callout warn"><span class="tag">h1 único por página</span>No está limitado técnicamente en la especificación actual, pero sigue siendo convención recomendada de SEO/accesibilidad; esto puede variar según tu plataforma.</div>
+    </section>
+
+    <section class="block" id="s7">
+      <div class="block-head"><span class="idx">07</span><h2>Metáforas y ejemplos visuales</h2></div>
+      <div class="metaphor-grid">
+        <div class="metaphor-card"><span class="label">HTML vs CSS</span>HTML es el esqueleto y los órganos de un cuerpo (qué es cada parte); CSS es la ropa y el maquillaje (cómo se ve por fuera).</div>
+        <div class="metaphor-card"><span class="label">class vs id</span>class es como el uniforme escolar: muchos lo comparten. id es como el número de cédula: cada persona tiene el suyo, y no se repite.</div>
+        <div class="metaphor-card"><span class="label">Especificidad</span>Un torneo de pesos: style inline es peso pesado, id es peso medio-alto, class es peso medio, etiqueta simple es peso ligero. Gana el de mayor peso, sin importar quién entró primero.</div>
+        <div class="metaphor-card"><span class="label">Herencia CSS</span>Los rasgos genéticos de una familia: el color de ojos (color, font-family) se hereda de padres a hijos, pero el tamaño de la casa (margin, width) no se hereda automáticamente.</div>
+        <div class="metaphor-card"><span class="label">Box Model</span>Una caja de regalo dentro de una caja de envío: el regalo es el content, el papel burbuja es el padding, la caja de cartón es el border, y el espacio libre en el camión es el margin.</div>
+        <div class="metaphor-card"><span class="label">box-sizing: border-box</span>Decir "el tamaño de la maleta ya incluye ruedas y asas", en vez de "el tamaño es solo el compartimento interno y las ruedas se suman aparte".</div>
+        <div class="metaphor-card"><span class="label">em vs rem</span>em es medir tu altura relativa a la persona que tienes al lado (cambia según quién esté cerca); rem es medirte siempre contra una regla fija en la pared, sin importar quién esté al lado.</div>
+        <div class="metaphor-card"><span class="label">CSS externo vs inline</span>CSS externo es un manual de estilo corporativo único para toda la empresa; CSS inline es cada empleado decidiendo su propio uniforme cada mañana: funciona, pero no escala.</div>
+      </div>
+    </section>
+
+    <section class="block" id="s8">
+      <div class="block-head"><span class="idx">08</span><h2>Errores típicos de un junior</h2></div>
+      <ul class="errors">
+        <li>Olvidar cerrar etiquetas (<code class="inline">&lt;p&gt;Texto</code> sin <code class="inline">&lt;/p&gt;</code>), rompiendo el anidamiento del resto del documento.</li>
+        <li>Confundir <code class="inline">class</code> con <code class="inline">id</code>: usar id para algo que se repite (ej. 10 tarjetas con el mismo id), generando HTML inválido.</li>
+        <li>No vincular bien el CSS externo: rutas relativas mal escritas en <code class="inline">&lt;link href="..."&gt;</code>, o el link fuera de <code class="inline">&lt;head&gt;</code>.</li>
+        <li>No entender el box model: sorprenderse de que un elemento con <code class="inline">width: 100px</code> ocupe más espacio del esperado por no considerar padding/border.</li>
+        <li>Usar <code class="inline">&lt;div&gt;</code> para todo en vez de etiquetas semánticas, perdiendo accesibilidad y SEO.</li>
+        <li>Olvidar el atributo <code class="inline">alt</code> en imágenes.</li>
+        <li>Escribir valores CSS sin unidad cuando es obligatoria (<code class="inline">margin: 10;</code> en vez de <code class="inline">margin: 10px;</code>), lo cual el navegador ignora silenciosamente.</li>
+        <li>Anidar <code class="inline">&lt;li&gt;</code> fuera de <code class="inline">&lt;ul&gt;</code>/<code class="inline">&lt;ol&gt;</code>, o texto suelto directo dentro de <code class="inline">&lt;ul&gt;</code>.</li>
+        <li>Abusar de <code class="inline">!important</code> en vez de entender por qué la especificidad no funcionaba.</li>
+        <li>No usar <code class="inline">&lt;label for="..."&gt;</code> correctamente en formularios, perjudicando la accesibilidad.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s9">
+      <div class="block-head"><span class="idx">09</span><h2>Preguntas de autoevaluación</h2></div>
+      <ol class="quiz-list">
+        <li>¿Puedo explicar la diferencia entre un elemento, una etiqueta y un atributo en HTML?</li>
+        <li>¿Puedo explicar por qué el DOCTYPE es necesario y qué pasa si no lo incluyo?</li>
+        <li>¿Puedo nombrar al menos 4 etiquetas semánticas y decir para qué sirve cada una?</li>
+        <li>¿Puedo explicar la diferencia entre class e id, incluyendo cuál se puede repetir y cuál no?</li>
+        <li>¿Puedo ordenar de mayor a menor la especificidad entre: estilo inline, id, clase y etiqueta?</li>
+        <li>¿Puedo dibujar de memoria las 4 capas del Box Model en orden correcto?</li>
+        <li>¿Puedo explicar la diferencia entre content-box y border-box con un ejemplo numérico?</li>
+        <li>¿Puedo explicar la diferencia entre em y rem y cuál evita el efecto de acumulación en cascada?</li>
+        <li>¿Puedo nombrar las 3 formas de vincular CSS y decir cuál es la mejor práctica y por qué?</li>
+        <li>¿Puedo explicar qué propiedades CSS heredan por defecto y cuáles no?</li>
+        <li>¿Puedo escribir de memoria un formulario básico con label, input de texto y un button?</li>
+        <li>¿Puedo explicar por qué el atributo alt en imágenes es importante más allá de lo visual?</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s10">
+      <div class="block-head"><span class="idx">10</span><h2>Checklist final de dominio</h2></div>
+      <ul class="check-list">
+        <li><input type="checkbox" id="c1"><label for="c1">Entiendo la estructura mínima de un documento HTML (DOCTYPE, html, head, body)</label></li>
+        <li><input type="checkbox" id="c2"><label for="c2">Sé usar correctamente las etiquetas de texto y las diferencio de las semánticas</label></li>
+        <li><input type="checkbox" id="c3"><label for="c3">Sé cuándo usar class y cuándo id, y por qué uno se repite y el otro no</label></li>
+        <li><input type="checkbox" id="c4"><label for="c4">Sé crear listas, enlaces, imágenes y un formulario básico sin errores de sintaxis</label></li>
+        <li><input type="checkbox" id="c5"><label for="c5">Sé vincular CSS de las 3 formas y explicar cuál es mejor práctica</label></li>
+        <li><input type="checkbox" id="c6"><label for="c6">Entiendo los 4 tipos de selectores CSS y el selector descendiente</label></li>
+        <li><input type="checkbox" id="c7"><label for="c7">Puedo predecir qué regla CSS gana en un conflicto usando especificidad</label></li>
+        <li><input type="checkbox" id="c8"><label for="c8">Entiendo qué propiedades heredan y cuáles no</label></li>
+        <li><input type="checkbox" id="c9"><label for="c9">Puedo dibujar y explicar el Box Model completo</label></li>
+        <li><input type="checkbox" id="c10"><label for="c10">Entiendo la diferencia práctica entre content-box y border-box</label></li>
+        <li><input type="checkbox" id="c11"><label for="c11">Sé diferenciar px, %, em y rem y cuándo usar cada una</label></li>
+        <li><input type="checkbox" id="c12"><label for="c12">Sé escribir colores en al menos 3 formatos distintos</label></li>
+        <li><input type="checkbox" id="c13"><label for="c13">Me siento en confianza de decir que "vi" esta clase completa</label></li>
+      </ul>
+      <p class="progress-note">Marca cada casilla a medida que repases — el progreso es solo visual en esta página.</p>
+    </section>
+
+    <section class="block" id="s11">
+      <div class="block-head"><span class="idx">11</span><h2>Recursos y lectura adicional</h2></div>
+      <div class="callout">
+        <span class="tag">MDN</span>
+        HTML: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener" style="color: var(--teal);">developer.mozilla.org/.../Web/HTML</a>
+      </div>
+      <div class="callout">
+        <span class="tag">MDN</span>
+        CSS: <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank" rel="noopener" style="color: var(--teal);">developer.mozilla.org/.../Web/CSS</a>
+      </div>
+      <p class="dim">Herramientas útiles: VS Code, HTML Validator, CSS Validator, Can I Use · Práctica online: CodePen, JSFiddle.</p>
+      <p class="dim">Nota: los enlaces y plataformas sugeridas pueden variar según lo que recomiende tu instructor o plataforma de curso específica.</p>
+    </section>
+
+    <section class="block" id="s12">
+      <div class="block-head"><span class="idx">12</span><h2>Próximas clases</h2></div>
+      <table>
+        <tr><th>Clase</th><th>Tema</th></tr>
+        <tr><td><b>Clase 5</b></td><td>Interactividad con el DOM</td></tr>
+        <tr><td><b>Clase 6</b></td><td>Maquetación avanzada con CSS (Flexbox y Grid)</td></tr>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    Formador: Steven Zuluaga Cortés · <a href="https://www.devseniorcode.com" target="_blank" rel="noopener">devseniorcode.com</a> · Academy@devseniorcode.com · @devseniorcode
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 5 — Interactividad con el DOM: Manipulación del DOM con JavaScript</title>
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/jetbrains-mono/2.304/JetBrainsMono.css');
+
+  :root{
+    --bg: #12151a;
+    --bg-alt: #181c23;
+    --surface: #1d222b;
+    --surface-hi: #242a35;
+    --line: #2a303b;
+    --text: #e7e4da;
+    --text-dim: #93998f;
+    --amber: #e8a33d;
+    --amber-dim: #a8763a;
+    --teal: #5fb3ad;
+    --red: #d97a6c;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Menlo, monospace;
+    --sans: 'IBM Plex Sans', Segoe UI, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,163,61,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(95,179,173,0.05), transparent 60%);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height:100vh;
+  }
+
+  /* Corner tag */
+  .corner-tag{
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--amber-dim);
+    color: var(--amber);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    padding: 7px 12px;
+    border-radius: 4px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  }
+  .corner-tag::before{
+    content: "● ";
+    color: var(--teal);
+  }
+
+  /* Terminal chrome header */
+  .term-bar{
+    max-width: 920px;
+    margin: 48px auto 0;
+    padding: 0 20px;
+  }
+  .term-window{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px 10px 0 0;
+    overflow:hidden;
+  }
+  .term-titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 10px 14px;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--line);
+  }
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.red{ background:#e0645a; }
+  .dot.yellow{ background:#e0b25a; }
+  .dot.green{ background:#5cbf7a; }
+  .term-title{
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .term-body{
+    padding: 34px 36px 30px;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--teal);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  h1.hero-title{
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.15;
+    margin: 10px 0 6px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .hero-title .prompt{ color: var(--amber); }
+  .hero-sub{
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 60ch;
+    margin: 10px 0 0;
+  }
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap: 10px 22px;
+    margin-top: 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .meta-row b{ color: var(--text); font-weight: 600; }
+
+  /* Table of contents */
+  nav.toc{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 22px 20px 0;
+  }
+  .toc-inner{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0 0 10px 10px;
+    padding: 20px 24px 22px;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 20px;
+  }
+  @media (max-width: 640px){ .toc-inner{ grid-template-columns: 1fr; } }
+  .toc-inner a{
+    color: var(--text-dim);
+    text-decoration:none;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    display:flex;
+    gap: 8px;
+  }
+  .toc-inner a:hover{ background: var(--surface-hi); color: var(--amber); }
+  .toc-inner a span.n{ color: var(--amber-dim); }
+
+  main{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  section.block{
+    margin-bottom: 44px;
+    scroll-margin-top: 30px;
+  }
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .block-head .idx{
+    font-family: var(--mono);
+    color: var(--amber);
+    font-size: 14px;
+  }
+  .block-head h2{
+    font-family: var(--mono);
+    font-size: 19px;
+    margin: 0;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  p{ color: var(--text); font-size: 15px; }
+  p.dim{ color: var(--text-dim); }
+
+  .subsection{
+    margin-bottom: 26px;
+    padding-left: 16px;
+    border-left: 2px solid var(--line);
+  }
+  .subsection h3{
+    font-family: var(--mono);
+    font-size: 15.5px;
+    color: var(--teal);
+    margin: 0 0 8px;
+  }
+
+  code, pre code{
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  code.inline{
+    background: var(--surface-hi);
+    color: var(--amber);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+  pre{
+    background: #0e1116;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+  pre code{ color: #c9d6d8; }
+  pre .cmt{ color: var(--text-dim); }
+  pre .flag{ color: var(--amber); }
+  pre .ph{ color: var(--teal); }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td{
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  th{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: var(--surface-hi);
+  }
+  td b{ color: var(--text); }
+  tr:hover td{ background: rgba(255,255,255,0.02); }
+
+  .callout{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--teal);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 14.5px;
+  }
+  .callout.warn{ border-left-color: var(--red); }
+  .callout .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    display:block;
+    margin-bottom: 6px;
+  }
+
+  .metaphor-grid{
+    display: grid;
+    gap: 14px;
+  }
+  .metaphor-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .metaphor-card .label{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display:block;
+    margin-bottom: 8px;
+  }
+
+  ul.errors{ list-style: none; padding: 0; margin: 0; }
+  ul.errors li{
+    position: relative;
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  ul.errors li::before{
+    content: "✕";
+    position:absolute; left: 0; top: 10px;
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  ul.errors li:last-child{ border-bottom: none; }
+
+  .quiz-list{ list-style: none; padding: 0; margin: 0; counter-reset: q; }
+  .quiz-list li{
+    counter-increment: q;
+    padding: 12px 14px 12px 44px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+  }
+  .quiz-list li::before{
+    content: counter(q, decimal-leading-zero);
+    position: absolute;
+    left: 12px; top: 12px;
+    font-family: var(--mono);
+    color: var(--amber-dim);
+    font-size: 13px;
+  }
+
+  .check-list{ list-style:none; padding:0; margin:0; }
+  .check-list li{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .check-list li:last-child{ border-bottom:none; }
+  .check-list input[type=checkbox]{
+    appearance: none;
+    -webkit-appearance:none;
+    width: 18px; height: 18px;
+    min-width:18px;
+    border: 1px solid var(--amber-dim);
+    border-radius: 4px;
+    background: var(--bg-alt);
+    cursor:pointer;
+    margin-top: 2px;
+    position: relative;
+  }
+  .check-list input[type=checkbox]:checked{
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+  .check-list input[type=checkbox]:checked::after{
+    content:"✓";
+    position:absolute; left:2px; top:-2px;
+    color: #12151a;
+    font-size: 13px;
+    font-weight:700;
+  }
+  .check-list label{ cursor:pointer; }
+  .check-list input[type=checkbox]:checked + label{
+    color: var(--text-dim);
+    text-decoration: line-through;
+  }
+
+  .glossary-term{ color: var(--amber); font-family: var(--mono); font-size: 13.5px; }
+
+  footer{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: var(--mono);
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  footer a{ color: var(--teal); text-decoration:none; }
+
+  .progress-note{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  @media (max-width: 560px){
+    .term-body{ padding: 24px 20px 22px; }
+    main{ padding: 30px 16px 80px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="corner-tag">JS-M1-C5</div>
+
+  <div class="term-bar">
+    <div class="term-window">
+      <div class="term-titlebar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <div class="term-title">clase_5.md — ~/ideade/js-mean-mastery/m1-u1</div>
+      </div>
+      <div class="term-body">
+        <span class="eyebrow">JavaScript MEAN Mastery · Módulo 1 · Unidad 1</span>
+        <h1 class="hero-title"><span class="prompt">$</span> Interactividad con el DOM: Manipulación del DOM con JavaScript</h1>
+        <p class="hero-sub">Guía de estudio completa de la Clase 5 — qué es el DOM, selección clásica y moderna de elementos, NodeList vs HTMLCollection, contenido/estilos/clases/atributos, creación y eliminación de elementos, traversal, eventos, y aplicaciones prácticas (dark mode, contador, calculadora).</p>
+        <div class="meta-row">
+          <span>Formador: <b>Steven Zuluaga Cortés</b></span>
+          <span>Duración: <b>3 horas</b></span>
+          <span>Nivel: <b>Junior</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-inner">
+      <a href="#s1"><span class="n">01</span> Índice de subtemas</a>
+      <a href="#s2"><span class="n">02</span> Explicación por subtema</a>
+      <a href="#s3"><span class="n">03</span> Glosario de conceptos</a>
+      <a href="#s4"><span class="n">04</span> ¿Para qué sirve?</a>
+      <a href="#s5"><span class="n">05</span> Ejemplos abstractos</a>
+      <a href="#s6"><span class="n">06</span> Excepciones y casos especiales</a>
+      <a href="#s7"><span class="n">07</span> Metáforas visuales</a>
+      <a href="#s8"><span class="n">08</span> Errores típicos</a>
+      <a href="#s9"><span class="n">09</span> Autoevaluación</a>
+      <a href="#s10"><span class="n">10</span> Checklist final</a>
+      <a href="#s11"><span class="n">11</span> Recursos adicionales</a>
+      <a href="#s12"><span class="n">12</span> Próximas clases</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <section class="block" id="s1">
+      <div class="block-head"><span class="idx">01</span><h2>Índice de subtemas</h2></div>
+      <ol style="color:var(--text); font-size:15px; padding-left:22px;">
+        <li>¿Qué es el DOM (Document Object Model)? Representación como árbol de nodos</li>
+        <li>Diferencia entre HTML (código fuente) y DOM (representación en memoria del navegador)</li>
+        <li>Selección de elementos clásica: <code class="inline">getElementById</code>, <code class="inline">getElementsByClassName</code>, <code class="inline">getElementsByTagName</code></li>
+        <li>Selección moderna: <code class="inline">querySelector</code>, <code class="inline">querySelectorAll</code></li>
+        <li>Diferencia entre <code class="inline">NodeList</code> y <code class="inline">HTMLCollection</code> (estática vs viva, cómo iterar cada una)</li>
+        <li>Modificar contenido: <code class="inline">.textContent</code>, <code class="inline">.innerText</code>, <code class="inline">.innerHTML</code> (y riesgos de <code class="inline">.innerHTML</code>)</li>
+        <li>Modificar estilos vía JS: <code class="inline">.style.propiedad</code></li>
+        <li>Manipulación de clases CSS: <code class="inline">.classList.add/remove/toggle/contains/replace</code></li>
+        <li>Manipulación de atributos: <code class="inline">.setAttribute</code>, <code class="inline">.getAttribute</code>, <code class="inline">.removeAttribute</code>, <code class="inline">.hasAttribute</code>, acceso directo (<code class="inline">.id</code>, <code class="inline">.src</code>, <code class="inline">.href</code>)</li>
+        <li>Crear y eliminar elementos: <code class="inline">document.createElement</code>, <code class="inline">.appendChild</code>, <code class="inline">.insertBefore</code>, <code class="inline">.cloneNode</code>, <code class="inline">.remove()</code></li>
+        <li>Navegación por el DOM (DOM Traversal): <code class="inline">parentElement</code>, <code class="inline">children</code>, <code class="inline">firstChild</code>/<code class="inline">lastChild</code>, <code class="inline">nextElementSibling</code>/<code class="inline">previousElementSibling</code></li>
+        <li>Propiedades de dimensiones y posición: <code class="inline">offsetWidth/Height</code>, <code class="inline">clientWidth/Height</code>, <code class="inline">scrollTop/Left</code></li>
+        <li>Eventos: <code class="inline">addEventListener</code>, tipos comunes (<code class="inline">click</code>, <code class="inline">submit</code>, <code class="inline">input</code>, <code class="inline">mouseover</code>, <code class="inline">keydown</code>)</li>
+        <li>El objeto <code class="inline">event</code> dentro del callback: <code class="inline">event.target</code>, <code class="inline">event.preventDefault()</code>, <code class="inline">event.key</code></li>
+        <li>Propagación de eventos: bubbling básico (introducción)</li>
+        <li><code class="inline">DOMContentLoaded</code> y por qué importa el orden de carga del script</li>
+        <li>Recorrer y manipular el DOM dinámicamente (listas generadas por JS)</li>
+        <li>Aplicación práctica: Dark Mode / Light Mode con <code class="inline">matchMedia</code> y <code class="inline">localStorage</code></li>
+        <li>Aplicación práctica: contador interactivo, toggle mostrar/ocultar, texto dinámico en tiempo real</li>
+        <li>Aplicación práctica: manejo de teclado (<code class="inline">keydown</code>) para una calculadora</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s2">
+      <div class="block-head"><span class="idx">02</span><h2>Explicación detallada por subtema</h2></div>
+
+      <div class="subsection">
+        <h3>2.1 · ¿Qué es el DOM?</h3>
+        <p>El <b>DOM (Document Object Model)</b> es una <b>representación en memoria</b>, como un árbol de objetos, del documento HTML que el navegador está mostrando. No es el archivo <code class="inline">.html</code> en sí — es la estructura de datos que el navegador construye <b>después</b> de leer ese archivo, y con la que JavaScript puede interactuar.</p>
+        <pre><code>document
+  └── html
+      ├── head
+      │   ├── title
+      │   └── meta
+      └── body
+          ├── h1
+          ├── p
+          └── button</code></pre>
+        <p>Cada etiqueta HTML se convierte en un <b>nodo</b> (<code class="inline">node</code>) dentro de ese árbol. <code class="inline">document</code> es el nodo raíz de todo, y a partir de él se puede navegar a cualquier otro nodo.</p>
+        <p class="dim"><b>Por qué existe:</b> HTML es texto estático. El DOM convierte ese texto en objetos que un lenguaje de programación (JavaScript) puede leer, modificar, agregar o eliminar en tiempo real, <b>sin recargar la página</b>. Esa es la base de toda interactividad web moderna.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.2 · HTML (código fuente) vs DOM (representación en memoria)</h3>
+        <p>El HTML que escribes es el <b>plano original</b>. El DOM es la <b>construcción real</b> que el navegador arma a partir de ese plano, y que puede cambiar dinámicamente sin que el archivo <code class="inline">.html</code> original se modifique.</p>
+        <pre><code><span class="cmt">&lt;!-- Este es el HTML fuente --&gt;</span>
+&lt;p id="saludo"&gt;Hola&lt;/p&gt;</code></pre>
+        <pre><code><span class="cmt">// JavaScript puede cambiar el DOM sin tocar el archivo .html</span>
+document.getElementById('saludo').textContent = 'Adiós';
+<span class="cmt">// El archivo .html sigue diciendo "Hola", pero lo que VE el usuario ahora dice "Adiós"</span></code></pre>
+        <p class="dim">Por eso, si haces clic derecho → "Ver código fuente de la página" en el navegador, ves el HTML original; pero si usas las <b>DevTools</b> (Inspeccionar elemento), ves el <b>DOM actual</b>, que puede ser distinto si JavaScript ya lo modificó.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.3 · Selección de elementos clásica</h3>
+        <pre><code><span class="cmt">// Por ID — devuelve UN solo elemento (o null si no existe)</span>
+const elemento = document.getElementById('miId');
+
+<span class="cmt">// Por clase — devuelve una HTMLCollection "viva" de todos los que la tengan</span>
+const elementos = document.getElementsByClassName('miClase');
+
+<span class="cmt">// Por etiqueta — devuelve una HTMLCollection "viva" de todos los &lt;p&gt;, por ejemplo</span>
+const parrafos = document.getElementsByTagName('p');</code></pre>
+        <p class="dim">Estos métodos son los más antiguos de la API del DOM. <code class="inline">getElementById</code> no lleva el <code class="inline">#</code> porque ya se sabe que busca por id. <code class="inline">getElementsByClassName</code> y <code class="inline">getElementsByTagName</code> <b>siempre devuelven varios</b> (una colección), incluso si solo hay un elemento que coincide.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.4 · Selección moderna: querySelector y querySelectorAll</h3>
+        <pre><code><span class="cmt">// Devuelve el PRIMER elemento que coincide con el selector CSS (o null)</span>
+const elemento = document.querySelector('.miClase');
+
+<span class="cmt">// Devuelve TODOS los que coinciden, como una NodeList estática</span>
+const elementos = document.querySelectorAll('.miClase');
+
+<span class="cmt">// Acepta cualquier selector CSS válido, incluso combinado</span>
+const especifico = document.querySelector('#contenedor .item:first-child');</code></pre>
+        <p class="dim"><b>Por qué se prefieren hoy en día:</b> usan la misma sintaxis de selectores que ya conoces de CSS (Clase 4), por lo que no necesitas aprender un método distinto para cada tipo de selector. <code class="inline">querySelector</code>/<code class="inline">querySelectorAll</code> son más flexibles y es la forma recomendada en código moderno.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.5 · NodeList vs HTMLCollection</h3>
+        <p>Ambas son colecciones "parecidas a un array", pero <b>no son arrays reales</b> (no tienen todos los métodos de array como <code class="inline">.map()</code> o <code class="inline">.filter()</code> directamente, salvo excepciones).</p>
+        <table>
+          <tr><th></th><th>HTMLCollection (getElementsBy...)</th><th>NodeList (querySelectorAll)</th></tr>
+          <tr><td>¿Es "viva"?</td><td>✅ Sí, se actualiza automáticamente si el DOM cambia</td><td>❌ No (estática), es una "foto" del momento en que se ejecutó</td></tr>
+          <tr><td>¿Tiene <code class="inline">.forEach()</code>?</td><td>❌ No directamente</td><td>✅ Sí</td></tr>
+          <tr><td>¿Se puede convertir a array?</td><td><code class="inline">Array.from(coleccion)</code> o <code class="inline">[...coleccion]</code></td><td><code class="inline">Array.from(coleccion)</code> o <code class="inline">[...coleccion]</code></td></tr>
+        </table>
+        <pre><code>const lis = document.getElementsByTagName('li'); <span class="cmt">// HTMLCollection viva</span>
+const lisModernos = document.querySelectorAll('li'); <span class="cmt">// NodeList estática</span>
+
+<span class="cmt">// Para iterar una HTMLCollection con forEach, primero conviértela:</span>
+Array.from(lis).forEach(li => console.log(li));
+<span class="cmt">// Una NodeList sí puede usar forEach directamente:</span>
+lisModernos.forEach(li => console.log(li));</code></pre>
+      </div>
+
+      <div class="subsection">
+        <h3>2.6 · Modificar contenido</h3>
+        <pre><code>elemento.textContent = 'Nuevo texto'; <span class="cmt">// Solo texto plano, ignora HTML</span>
+elemento.innerText = 'Nuevo texto';   <span class="cmt">// Similar, pero respeta estilos visuales (ej. display:none)</span>
+elemento.innerHTML = '&lt;strong&gt;Texto en negrita&lt;/strong&gt;'; <span class="cmt">// Interpreta HTML</span></code></pre>
+        <p class="dim"><code class="inline">.textContent</code>: reemplaza el contenido como <b>texto puro</b>. Si le pasas <code class="inline">&lt;strong&gt;Hola&lt;/strong&gt;</code>, lo mostrará literalmente con las etiquetas visibles, no las renderiza.<br>
+        <code class="inline">.innerText</code>: parecido a <code class="inline">textContent</code>, pero es consciente del renderizado CSS (por ejemplo, ignora texto oculto con <code class="inline">display: none</code>) y es más costoso en rendimiento.<br>
+        <code class="inline">.innerHTML</code>: interpreta el string como HTML real y lo renderiza. Es potente, pero riesgoso (ver excepciones, sección 06).</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.7 · Modificar estilos vía JavaScript</h3>
+        <pre><code>elemento.style.color = 'red';
+elemento.style.fontSize = '20px'; <span class="cmt">// Nota: camelCase, NO "font-size"</span>
+elemento.style.backgroundColor = 'black';</code></pre>
+        <p class="dim">Las propiedades CSS con guion (<code class="inline">font-size</code>, <code class="inline">background-color</code>) se escriben en <b>camelCase</b> en JavaScript (<code class="inline">fontSize</code>, <code class="inline">backgroundColor</code>), porque el guion no es válido como parte de un nombre de propiedad de un objeto JS.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.8 · Manipulación de clases CSS: classList</h3>
+        <pre><code>elemento.classList.add('activo');           <span class="cmt">// Agrega la clase</span>
+elemento.classList.remove('inactivo');       <span class="cmt">// Quita la clase</span>
+elemento.classList.toggle('visible');        <span class="cmt">// La agrega si no está, la quita si está</span>
+elemento.classList.contains('especial');     <span class="cmt">// true/false, ¿la tiene?</span>
+elemento.classList.replace('viejo', 'nuevo'); <span class="cmt">// Reemplaza una clase por otra</span></code></pre>
+        <p class="dim"><b>Por qué se prefiere <code class="inline">classList</code> sobre modificar <code class="inline">.style</code> directamente:</b> separa la lógica (JS decide <i>cuándo</i> cambia el estado) de la presentación (CSS decide <i>cómo se ve</i> ese estado), siguiendo la misma filosofía de separación de responsabilidades vista en la Clase 4.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.9 · Manipulación de atributos</h3>
+        <pre><code>const valor = elemento.getAttribute('data-id');    <span class="cmt">// Leer un atributo</span>
+elemento.setAttribute('data-id', '123');            <span class="cmt">// Escribir/crear un atributo</span>
+elemento.removeAttribute('disabled');               <span class="cmt">// Eliminar un atributo</span>
+elemento.hasAttribute('data-especial');             <span class="cmt">// true/false</span>
+
+<span class="cmt">// Acceso directo a atributos "estándar" (propiedades del elemento)</span>
+elemento.id = 'nuevo-id';
+elemento.title = 'Información';
+elemento.href = 'https://ejemplo.com';</code></pre>
+        <p class="dim"><code class="inline">setAttribute</code>/<code class="inline">getAttribute</code> funcionan con <b>cualquier</b> atributo, incluidos los personalizados (<code class="inline">data-*</code>). El acceso directo (<code class="inline">elemento.id</code>, <code class="inline">elemento.src</code>) solo funciona para atributos que el DOM ya reconoce como propiedades estándar del elemento.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.10 · Crear y eliminar elementos</h3>
+        <pre><code><span class="cmt">// Crear</span>
+const nuevoDiv = document.createElement('div');
+nuevoDiv.textContent = 'Contenido del nuevo elemento';
+nuevoDiv.classList.add('mi-clase');
+
+<span class="cmt">// Insertar en el DOM</span>
+contenedor.appendChild(nuevoDiv);           <span class="cmt">// Al final del contenedor</span>
+contenedor.insertBefore(nuevoDiv, elemento); <span class="cmt">// Antes de un elemento específico</span>
+
+<span class="cmt">// Clonar</span>
+const clon = elemento.cloneNode(true); <span class="cmt">// true = copia profunda (incluye hijos)</span>
+
+<span class="cmt">// Eliminar</span>
+elemento.remove();                       <span class="cmt">// Forma moderna</span>
+elemento.parentNode.removeChild(elemento); <span class="cmt">// Forma clásica (compatibilidad)</span></code></pre>
+        <p class="dim"><code class="inline">createElement</code> <b>no lo agrega automáticamente a la página</b> — solo lo crea en memoria. Es indispensable llamar a <code class="inline">.appendChild()</code> (o método similar) para que aparezca visualmente.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.11 · Navegación por el DOM (Traversal)</h3>
+        <pre><code>elemento.parentElement;          <span class="cmt">// Elemento padre</span>
+elemento.children;                <span class="cmt">// Hijos directos (solo elementos, no texto)</span>
+elemento.firstChild;              <span class="cmt">// Primer hijo (puede ser un nodo de texto, ej. un espacio en blanco)</span>
+elemento.lastChild;                <span class="cmt">// Último hijo</span>
+elemento.nextElementSibling;      <span class="cmt">// Siguiente elemento hermano</span>
+elemento.previousElementSibling;  <span class="cmt">// Elemento hermano anterior</span></code></pre>
+        <div class="callout warn"><span class="tag">Confusión frecuente</span><code class="inline">firstChild</code>/<code class="inline">lastChild</code> incluyen <b>nodos de texto</b> (como espacios en blanco entre etiquetas), mientras que <code class="inline">firstElementChild</code>/<code class="inline">lastElementChild</code> solo consideran elementos HTML reales.</div>
+      </div>
+
+      <div class="subsection">
+        <h3>2.12 · Propiedades de dimensiones y posición</h3>
+        <pre><code>elemento.offsetWidth;   <span class="cmt">// Ancho total, incluye border y padding</span>
+elemento.offsetHeight;  <span class="cmt">// Alto total</span>
+elemento.clientWidth;   <span class="cmt">// Ancho sin border (incluye padding)</span>
+elemento.clientHeight;  <span class="cmt">// Alto sin border</span>
+elemento.scrollTop;     <span class="cmt">// Cuánto se ha desplazado verticalmente el contenido</span>
+elemento.scrollLeft;    <span class="cmt">// Cuánto se ha desplazado horizontalmente</span></code></pre>
+        <p class="dim">Estas propiedades conectan directamente con el Box Model visto en la Clase 4: <code class="inline">offsetWidth</code> incluye border, <code class="inline">clientWidth</code> no.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.13 · Eventos: addEventListener</h3>
+        <pre><code>button.addEventListener('click', function() {
+    console.log('¡Botón clickeado!');
+});
+
+<span class="cmt">// Con arrow function (más común en código moderno)</span>
+button.addEventListener('click', () => {
+    console.log('¡Botón clickeado!');
+});</code></pre>
+        <p class="dim"><b>Estructura:</b> <code class="inline">elemento.addEventListener('tipo_de_evento', funcion_callback)</code>. El callback se ejecuta <b>cada vez</b> que ese evento ocurre sobre ese elemento; no se ejecuta al momento de escribir el código, sino en el futuro, cuando el usuario interactúa.</p>
+        <p><b>Eventos comunes:</b></p>
+        <table>
+          <tr><th>Evento</th><th>Dispara cuando...</th></tr>
+          <tr><td><code class="inline">click</code></td><td>Se hace clic sobre el elemento</td></tr>
+          <tr><td><code class="inline">submit</code></td><td>Se envía un <code class="inline">&lt;form&gt;</code></td></tr>
+          <tr><td><code class="inline">input</code></td><td>Cambia el valor de un campo en tiempo real (cada tecla)</td></tr>
+          <tr><td><code class="inline">mouseover</code></td><td>El cursor entra sobre el elemento</td></tr>
+          <tr><td><code class="inline">keydown</code></td><td>Se presiona una tecla del teclado</td></tr>
+        </table>
+      </div>
+
+      <div class="subsection">
+        <h3>2.14 · El objeto event</h3>
+        <pre><code>elemento.addEventListener('click', (event) => {
+    console.log(event.target); <span class="cmt">// El elemento exacto que disparó el evento</span>
+});
+
+formulario.addEventListener('submit', (event) => {
+    event.preventDefault(); <span class="cmt">// Evita que el formulario recargue la página</span>
+});
+
+document.addEventListener('keydown', (event) => {
+    console.log(event.key); <span class="cmt">// La tecla exacta que se presionó, ej. "Enter", "a", "Backspace"</span>
+});</code></pre>
+        <p class="dim">Cada callback de evento recibe automáticamente un objeto <code class="inline">event</code> (a menudo abreviado <code class="inline">e</code>) con información sobre lo que ocurrió: qué elemento lo disparó (<code class="inline">target</code>), qué tecla fue (<code class="inline">key</code>), y métodos como <code class="inline">preventDefault()</code> para evitar el comportamiento por defecto del navegador (ej. recargar la página al enviar un formulario, o abrir el buscador rápido del navegador al presionar <code class="inline">/</code>).</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.15 · Propagación de eventos (bubbling) — introducción</h3>
+        <pre><code>&lt;div id="padre"&gt;
+  &lt;button id="hijo"&gt;Clic aquí&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+        <pre><code>document.getElementById('padre').addEventListener('click', () => console.log('Padre'));
+document.getElementById('hijo').addEventListener('click', () => console.log('Hijo'));
+
+<span class="cmt">// Al hacer clic en el botón, se imprime: "Hijo" y LUEGO "Padre"</span></code></pre>
+        <p class="dim">Cuando ocurre un evento en un elemento, este "burbujea" (bubbling) hacia arriba, disparando también los listeners de sus elementos padres, salvo que se detenga explícitamente (<code class="inline">event.stopPropagation()</code>, tema que se profundiza más adelante en el curso).</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.16 · DOMContentLoaded</h3>
+        <pre><code>document.addEventListener('DOMContentLoaded', () => {
+    console.log('El DOM ya está listo para manipularse');
+});</code></pre>
+        <p class="dim"><b>Por qué importa:</b> si tu script intenta seleccionar un elemento <b>antes</b> de que el navegador haya terminado de construir el DOM, el elemento no existe todavía y el resultado será <code class="inline">null</code> (ver excepciones, sección 06). <code class="inline">DOMContentLoaded</code> garantiza que todo el HTML ya fue parseado antes de ejecutar tu código. Alternativa común: colocar la etiqueta <code class="inline">&lt;script&gt;</code> justo antes de cerrar <code class="inline">&lt;/body&gt;</code>, para que el HTML ya se haya cargado al llegar a esa línea.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.17 · Recorrer y manipular el DOM dinámicamente</h3>
+        <pre><code>const contenedor = document.getElementById('contenedor');
+for (let i = -100; i &lt;= 100; i++) {
+  const cuadro = document.createElement('div');
+  if (i % 2 === 0) {
+    cuadro.classList.add('square-even');
+    cuadro.textContent = `🤝 + ${i}`;
+  } else {
+    cuadro.classList.add('square-odd');
+    cuadro.textContent = `🫂 + ${i}`;
+  }
+  contenedor.appendChild(cuadro);
+}</code></pre>
+        <p class="dim">Este patrón combina todo lo aprendido en la Clase 3 (bucle <code class="inline">for</code> + condicional) con lo nuevo de esta clase (<code class="inline">createElement</code>, <code class="inline">classList.add</code>, <code class="inline">textContent</code>, <code class="inline">appendChild</code>) para generar contenido dinámico basado en datos.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.18 · Dark Mode / Light Mode</h3>
+        <pre><code><span class="cmt">// Detectar preferencia del sistema operativo del usuario</span>
+const prefiereOscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+<span class="cmt">// Cambiar variables CSS dinámicamente desde JS</span>
+const root = document.documentElement;
+root.style.setProperty('--color-fondo', '#1a1a1a');
+root.style.setProperty('--color-texto', '#ffffff');
+
+<span class="cmt">// Guardar la preferencia del usuario para que persista entre visitas</span>
+localStorage.setItem('tema', 'oscuro');
+const temaGuardado = localStorage.getItem('tema');
+
+<span class="cmt">// Función reutilizable de cambio de tema</span>
+function cambiarTema(tema) {
+    document.body.classList.remove('claro', 'oscuro');
+    document.body.classList.add(tema);
+    localStorage.setItem('tema-activo', tema);
+}</code></pre>
+        <p class="dim"><code class="inline">matchMedia</code> permite a JavaScript leer configuraciones del sistema operativo/navegador (como "modo oscuro activado"). <code class="inline">localStorage</code> es un almacenamiento simple del navegador que <b>persiste</b> aunque el usuario cierre la pestaña o el navegador — por eso sirve para "recordar" que el usuario prefiere el tema oscuro la próxima vez que visite la página.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.19 · Contador interactivo, toggle y texto dinámico (ejercicios guiados)</h3>
+        <pre><code><span class="cmt">// Contador</span>
+let contador = 0;
+const numeroContador = document.getElementById('numero-contador');
+const btnAumentar = document.getElementById('btn-aumentar');
+
+function actualizarContador() {
+    numeroContador.textContent = contador;
+}
+
+btnAumentar.addEventListener('click', () => {
+    contador++;
+    actualizarContador();
+});</code></pre>
+        <pre><code><span class="cmt">// Toggle mostrar/ocultar</span>
+const btnToggle = document.getElementById('btn-toggle');
+const cajaOculta = document.getElementById('caja-oculta');
+
+btnToggle.addEventListener('click', () => {
+    if (cajaOculta.style.display === 'none') {
+        cajaOculta.style.display = 'block';
+        btnToggle.textContent = 'Ocultar';
+    } else {
+        cajaOculta.style.display = 'none';
+        btnToggle.textContent = 'Mostrar';
+    }
+});</code></pre>
+        <pre><code><span class="cmt">// Texto dinámico en tiempo real</span>
+const inputTexto = document.getElementById('input-texto');
+const textoDinamico = document.getElementById('texto-dinamico');
+
+inputTexto.addEventListener('input', () => {
+    textoDinamico.textContent = inputTexto.value || 'Tu texto aparecerá aquí';
+});</code></pre>
+        <p class="dim">El patrón común a los tres ejercicios: <b>seleccionar</b> el elemento una sola vez (fuera del listener, para no repetir la búsqueda en cada clic), <b>escuchar</b> un evento, y <b>actualizar</b> el DOM dentro del callback según el nuevo estado.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.20 · Manejo de teclado para una calculadora</h3>
+        <pre><code>document.addEventListener('keydown', (e) => {
+    const display = document.getElementById('resultado');
+
+    if (e.key >= '0' && e.key &lt;= '9') {
+        agregarNumero(e.key);
+    } else if (e.key === '/') {
+        e.preventDefault(); <span class="cmt">// Evita que el navegador abra su buscador rápido con "/"</span>
+        agregarOperador('/');
+    } else if (e.key === 'Enter' || e.key === '=') {
+        calcular();
+    } else if (e.key === 'Backspace') {
+        borrarUltimo();
+    }
+});</code></pre>
+        <p class="dim">Aquí <code class="inline">event.key</code> permite distinguir exactamente qué tecla se presionó, y <code class="inline">event.preventDefault()</code> se usa para evitar comportamientos por defecto del navegador que interferirían con la funcionalidad de la calculadora (como que <code class="inline">/</code> abra la búsqueda rápida en Firefox).</p>
+      </div>
+    </section>
+
+    <section class="block" id="s3">
+      <div class="block-head"><span class="idx">03</span><h2>Conceptos clave (glosario)</h2></div>
+      <table>
+        <tr><th>Término</th><th>Definición</th></tr>
+        <tr><td><span class="glossary-term">DOM</span></td><td>Representación en memoria, como árbol de nodos, del documento HTML que el navegador puede manipular</td></tr>
+        <tr><td><span class="glossary-term">Nodo (node)</span></td><td>Cada unidad individual del árbol del DOM (un elemento, un texto, un comentario)</td></tr>
+        <tr><td><span class="glossary-term">NodeList</span></td><td>Colección de nodos devuelta por <code class="inline">querySelectorAll</code>, estática (no se actualiza sola)</td></tr>
+        <tr><td><span class="glossary-term">HTMLCollection</span></td><td>Colección de elementos devuelta por métodos clásicos (<code class="inline">getElementsBy...</code>), "viva" (se actualiza sola)</td></tr>
+        <tr><td><span class="glossary-term">Evento (event)</span></td><td>Una acción o suceso que ocurre en la página (clic, tecla, envío de formulario) que JS puede "escuchar"</td></tr>
+        <tr><td><span class="glossary-term">Listener (escuchador)</span></td><td>Función que se ejecuta automáticamente cuando ocurre un evento específico</td></tr>
+        <tr><td><span class="glossary-term">Callback</span></td><td>Función que se pasa como argumento para ser ejecutada más adelante (ej. dentro de <code class="inline">addEventListener</code>)</td></tr>
+        <tr><td><span class="glossary-term">Bubbling (burbujeo)</span></td><td>Propagación de un evento desde el elemento donde ocurrió hacia sus elementos padres</td></tr>
+        <tr><td><span class="glossary-term">DOMContentLoaded</span></td><td>Evento que se dispara cuando el navegador terminó de construir el DOM</td></tr>
+        <tr><td><span class="glossary-term">Traversal (recorrido)</span></td><td>Navegar entre nodos relacionados del DOM (padres, hijos, hermanos)</td></tr>
+        <tr><td><span class="glossary-term">localStorage</span></td><td>Almacenamiento del navegador que persiste datos incluso después de cerrar la pestaña</td></tr>
+        <tr><td><span class="glossary-term">matchMedia</span></td><td>API que permite consultar configuraciones del sistema/navegador desde JS (ej. modo oscuro)</td></tr>
+      </table>
+    </section>
+
+    <section class="block" id="s4">
+      <div class="block-head"><span class="idx">04</span><h2>¿Para qué sirve cada concepto?</h2></div>
+      <ul class="errors" style="--tick:true;">
+        <li style="border-bottom:1px solid var(--line);"><b>DOM</b> → es la base de toda página interactiva: sin él, JavaScript no podría "ver" ni cambiar lo que hay en pantalla.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>querySelector/querySelectorAll</b> → forma moderna y flexible de encontrar exactamente el/los elemento(s) que necesitas modificar.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>NodeList vs HTMLCollection</b> → entender la diferencia evita bugs sutiles al iterar colecciones o al esperar que una lista se actualice sola.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>textContent/innerHTML</b> → decidir cuál usar protege tu aplicación de vulnerabilidades (ver excepción de seguridad) y evita bugs de renderizado.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>classList</b> → permite cambiar el "estado visual" de un elemento (activo, oculto, seleccionado) sin escribir CSS línea por línea desde JS.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>setAttribute/getAttribute</b> → esenciales para trabajar con atributos personalizados (<code class="inline">data-*</code>), muy usados para guardar información en el propio HTML.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>createElement + appendChild</b> → permite generar interfaces dinámicas (listas de tareas, galerías, resultados de búsqueda) sin recargar la página.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>Traversal (parentElement, children, siblings)</b> → útil cuando necesitas modificar un elemento "relacionado" a otro sin tener que seleccionarlo de nuevo desde cero.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>addEventListener + event</b> → es el mecanismo central de toda interactividad: sin eventos, una página es solo un documento estático.</li>
+        <li style="border-bottom:1px solid var(--line);"><b>DOMContentLoaded</b> → evita el error clásico de "mi código no encuentra el elemento", garantizando que el HTML ya está listo.</li>
+        <li><b>Dark Mode + localStorage</b> → aplicación real y muy común: mejorar la experiencia de usuario y recordar sus preferencias entre visitas.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s5">
+      <div class="block-head"><span class="idx">05</span><h2>Ejemplos abstractos</h2></div>
+
+      <div class="subsection">
+        <h3>5.1 · Fijos del lenguaje/API del DOM (NO se pueden renombrar)</h3>
+        <pre><code>document.getElementById(<span class="ph">[id_1]</span>);
+document.querySelector(<span class="ph">[selector_1]</span>);
+document.querySelectorAll(<span class="ph">[selector_1]</span>);
+document.createElement(<span class="ph">[tipo_etiqueta_1]</span>);
+
+<span class="ph">[elemento_1]</span>.addEventListener(<span class="ph">[tipo_evento_1]</span>, <span class="ph">[funcion_callback_1]</span>);
+<span class="ph">[elemento_1]</span>.classList.add(<span class="ph">[nombre_clase_1]</span>);
+<span class="ph">[elemento_1]</span>.setAttribute(<span class="ph">[nombre_atributo_1]</span>, <span class="ph">[valor_1]</span>);
+<span class="ph">[elemento_1]</span>.textContent = <span class="ph">[valor_1]</span>;
+<span class="ph">[elemento_1]</span>.appendChild(<span class="ph">[elemento_2]</span>);</code></pre>
+        <p class="dim"><code class="inline">getElementById, querySelector, querySelectorAll, createElement, addEventListener, classList, setAttribute, textContent, appendChild</code> → <b>nombres de métodos/propiedades fijos</b> de la API del DOM, no se inventan ni se traducen. <span class="glossary-term">[id_1]</span>, <span class="glossary-term">[selector_1]</span>, <span class="glossary-term">[tipo_etiqueta_1]</span>, <span class="glossary-term">[nombre_clase_1]</span>, <span class="glossary-term">[nombre_atributo_1]</span>, <span class="glossary-term">[valor_1]</span> → valores que el estudiante elige (strings que dependen del HTML que haya escrito). <span class="glossary-term">[tipo_evento_1]</span> → debe ser uno de los eventos reales que reconoce el navegador (<code class="inline">click</code>, <code class="inline">submit</code>, <code class="inline">input</code>...), <b>no</b> un nombre inventado libremente.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>5.2 · Reutilizables / renombrables por el estudiante</h3>
+        <pre><code>const <span class="ph">[nombre_variable_1]</span> = document.getElementById(<span class="ph">[id_1]</span>);
+
+<span class="ph">[nombre_variable_1]</span>.addEventListener('click', () => {
+  <span class="ph">[nombre_variable_1]</span>.textContent = <span class="ph">[nuevo_valor_1]</span>;
+});</code></pre>
+        <p class="dim"><span class="glossary-term">[nombre_variable_1]</span> → el estudiante elige el nombre (ej. <code class="inline">boton</code>, <code class="inline">contador</code>, <code class="inline">caja</code>); <b>puede repetirse</b> el patrón de declarar variables tantas veces como elementos necesite seleccionar, pero cada nombre de variable debe ser único dentro de su mismo alcance (scope). <span class="glossary-term">[id_1]</span> → debe coincidir exactamente con el <code class="inline">id</code> real definido en el HTML (Clase 4); si no coincide, el resultado es <code class="inline">null</code> (ver excepciones). <span class="glossary-term">[nuevo_valor_1]</span> → contenido libre definido por el estudiante.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>5.3 · Tabla resumen de "qué se puede renombrar"</h3>
+        <table>
+          <tr><th>Elemento</th><th>¿Se puede renombrar?</th><th>¿Se puede repetir?</th></tr>
+          <tr><td>Nombre de método del DOM (<code class="inline">getElementById</code>, <code class="inline">addEventListener</code>...)</td><td>❌ No, es fijo de la API</td><td>✅ Sí, se usa tantas veces como se necesite</td></tr>
+          <tr><td>Tipo de evento (<code class="inline">'click'</code>, <code class="inline">'submit'</code>...)</td><td>❌ No, debe ser uno reconocido por el navegador</td><td>✅ Sí, en distintos elementos</td></tr>
+          <tr><td>Nombre de variable que guarda un elemento seleccionado</td><td>✅ Sí, lo elige el estudiante</td><td>⚠️ Debe ser único en su scope</td></tr>
+          <tr><td>Valor de <code class="inline">id</code>/selector pasado como argumento</td><td>✅ Sí, pero debe coincidir con el HTML real</td><td>✅ Sí, en distintas llamadas</td></tr>
+          <tr><td>Nombre de la función callback</td><td>✅ Sí (si se declara aparte, no es anónima)</td><td>✅ Sí, se puede reutilizar en varios listeners</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="block" id="s6">
+      <div class="block-head"><span class="idx">06</span><h2>Excepciones y casos especiales</h2></div>
+      <div class="callout warn"><span class="tag">Elemento null si el script corre antes de tiempo</span>Si el <code class="inline">&lt;script&gt;</code> se ejecuta antes de que el navegador haya parseado el HTML correspondiente, <code class="inline">document.getElementById('algo')</code> devuelve <code class="inline">null</code>, y cualquier intento de usar <code class="inline">.textContent</code> u otro método sobre ese <code class="inline">null</code> lanza un error (<code class="inline">Cannot read properties of null</code>). Solución: usar <code class="inline">DOMContentLoaded</code> o colocar el script al final del <code class="inline">&lt;body&gt;</code>.</div>
+      <div class="callout warn"><span class="tag">Riesgo de seguridad de .innerHTML</span>Si insertas contenido que viene de un usuario (por ejemplo, un comentario) directamente con <code class="inline">.innerHTML</code>, y ese contenido incluye código <code class="inline">&lt;script&gt;</code> malicioso, el navegador <b>lo ejecutará</b> — esto se conoce como una vulnerabilidad de tipo XSS (Cross-Site Scripting). Por eso, cuando el contenido no es HTML controlado por ti, se prefiere <code class="inline">.textContent</code>.</div>
+      <div class="callout warn"><span class="tag">NodeList vs Array real</span>Una <code class="inline">NodeList</code> (de <code class="inline">querySelectorAll</code>) tiene <code class="inline">.forEach()</code>, pero <b>no</b> tiene automáticamente todos los métodos de array como <code class="inline">.map()</code> o <code class="inline">.filter()</code>; para usarlos hay que convertirla explícitamente con <code class="inline">Array.from()</code> o el operador spread <code class="inline">[...nodeList]</code>.</div>
+      <div class="callout warn"><span class="tag">HTMLCollection "viva"</span>Si iteras una <code class="inline">HTMLCollection</code> con un bucle <code class="inline">for</code> clásico mientras agregas o quitas elementos del DOM al mismo tiempo, la colección cambia de tamaño <b>durante</b> la iteración, lo que puede saltarse elementos o causar bucles inesperados.</div>
+      <div class="callout warn"><span class="tag">firstChild vs firstElementChild</span><code class="inline">firstChild</code> puede devolver un nodo de texto invisible (como un salto de línea entre etiquetas en el HTML), no necesariamente el primer elemento HTML visual — una fuente de confusión común.</div>
+      <div class="callout warn"><span class="tag">preventDefault no detiene la propagación</span><code class="inline">event.preventDefault()</code> evita el comportamiento <i>por defecto</i> del navegador (como recargar la página), pero <b>no</b> detiene que el evento siga burbujeando hacia los elementos padres; para eso se necesita <code class="inline">event.stopPropagation()</code>.</div>
+      <div class="callout warn"><span class="tag">localStorage solo almacena strings</span>Si guardas un objeto o array, debes convertirlo con <code class="inline">JSON.stringify()</code> antes de guardarlo y <code class="inline">JSON.parse()</code> al leerlo; guardarlo directamente lo convierte silenciosamente en el string <code class="inline">"[object Object]"</code>.</div>
+      <div class="callout warn"><span class="tag">matchMedia refleja al sistema, no a tu web</span>Si el usuario cambia manualmente el tema en tu página, esa preferencia debe guardarse aparte (ej. en <code class="inline">localStorage</code>), porque <code class="inline">matchMedia</code> seguirá reportando la configuración del sistema operativo, no la elegida dentro de tu app.</div>
+    </section>
+
+    <section class="block" id="s7">
+      <div class="block-head"><span class="idx">07</span><h2>Metáforas y ejemplos visuales</h2></div>
+      <div class="metaphor-grid">
+        <div class="metaphor-card"><span class="label">DOM</span>Es como el plano arquitectónico convertido en una maqueta física y editable: el HTML es el plano en papel (fijo), el DOM es la maqueta que puedes tocar, mover y modificar en tiempo real sin reimprimir el plano.</div>
+        <div class="metaphor-card"><span class="label">NodeList vs HTMLCollection</span>Una NodeList (de querySelectorAll) es como una foto tomada en un instante: aunque después cambien las personas en la sala, la foto no cambia. Una HTMLCollection es como mirar por una ventana en vivo: si algo cambia en la sala, lo ves reflejado al instante.</div>
+        <div class="metaphor-card"><span class="label">textContent vs innerHTML</span>textContent es como leerle un mensaje de texto a alguien en voz alta, tal cual está escrito (aunque tenga símbolos raros, los lee literalmente); innerHTML es como entregarle una hoja con instrucciones de formato que la persona sigue al pie de la letra (incluyendo instrucciones peligrosas si vienen de un desconocido).</div>
+        <div class="metaphor-card"><span class="label">addEventListener</span>Es como contratar a un vigilante que espera pacientemente junto a una puerta (el elemento) y solo actúa cuando ocurre exactamente lo que le dijiste que vigile (el tipo de evento).</div>
+        <div class="metaphor-card"><span class="label">Bubbling (burbujeo)</span>Una piedra cayendo en un estanque: el golpe inicial (el evento) ocurre en un punto exacto, pero las ondas (la propagación) se expanden hacia afuera, pasando también por los círculos concéntricos más grandes (los elementos padres).</div>
+        <div class="metaphor-card"><span class="label">DOMContentLoaded</span>Es como esperar a que terminen de armar todos los muebles de una casa antes de empezar a decorarla: si intentas colgar un cuadro en una pared que aún no han construido, simplemente no hay dónde colgarlo.</div>
+        <div class="metaphor-card"><span class="label">createElement + appendChild</span>createElement es fabricar una pieza de LEGO nueva en tu mano; mientras no la conectes a la estructura principal (appendChild), esa pieza no forma parte visible de la construcción.</div>
+        <div class="metaphor-card"><span class="label">localStorage</span>Es como dejar una nota pegada en el refrigerador que sigue ahí incluso si sales de la casa y vuelves días después, a diferencia de una nota que sostienes en la mano y se pierde apenas sueltas.</div>
+      </div>
+    </section>
+
+    <section class="block" id="s8">
+      <div class="block-head"><span class="idx">08</span><h2>Errores típicos de un junior</h2></div>
+      <ul class="errors">
+        <li>Seleccionar un elemento antes de que exista: escribir <code class="inline">document.getElementById(...)</code> en la parte superior del <code class="inline">&lt;head&gt;</code> sin esperar <code class="inline">DOMContentLoaded</code>, obteniendo <code class="inline">null</code>.</li>
+        <li>Confundir <code class="inline">innerText</code> con <code class="inline">innerHTML</code>: usar <code class="inline">innerHTML</code> para insertar texto simple, exponiéndose sin necesidad a riesgos de seguridad o comportamientos inesperados si el texto contiene símbolos como <code class="inline">&lt;</code> o <code class="inline">&gt;</code>.</li>
+        <li>Olvidar <code class="inline">event.preventDefault()</code> en formularios: al no prevenir el comportamiento por defecto de <code class="inline">submit</code>, la página se recarga inesperadamente y se pierde cualquier estado de JavaScript.</li>
+        <li>Iterar una <code class="inline">HTMLCollection</code> con <code class="inline">.forEach()</code> directamente, sin convertirla antes con <code class="inline">Array.from()</code>, provocando un error porque ese método no existe ahí.</li>
+        <li>Modificar <code class="inline">.style.propiedad</code> con guiones en vez de camelCase (<code class="inline">elemento.style.background-color</code> en vez de <code class="inline">elemento.style.backgroundColor</code>), lo cual produce un error de sintaxis en JS.</li>
+        <li>Pensar que <code class="inline">createElement</code> ya inserta el elemento en la página, olvidando el <code class="inline">appendChild</code> (o similar) necesario para que sea visible.</li>
+        <li>Confundir <code class="inline">firstChild</code> con <code class="inline">firstElementChild</code> y sorprenderse al obtener un nodo de texto vacío en vez del primer elemento esperado.</li>
+        <li>Guardar un objeto directamente en <code class="inline">localStorage</code> sin <code class="inline">JSON.stringify()</code>, y luego no entender por qué al leerlo aparece como <code class="inline">"[object Object]"</code>.</li>
+        <li>No verificar que el elemento seleccionado no sea <code class="inline">null</code> antes de usarlo, provocando errores en tiempo de ejecución difíciles de rastrear.</li>
+        <li>Agregar múltiples <code class="inline">addEventListener</code> idénticos por accidente (por ejemplo, dentro de un bucle mal controlado), causando que una misma acción del usuario dispare el callback varias veces.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s9">
+      <div class="block-head"><span class="idx">09</span><h2>Preguntas de autoevaluación</h2></div>
+      <ol class="quiz-list">
+        <li>¿Puedo explicar qué es el DOM y por qué es distinto del archivo HTML original?</li>
+        <li>¿Puedo nombrar al menos 3 formas de seleccionar elementos y decir cuál es la más moderna y flexible?</li>
+        <li>¿Puedo explicar la diferencia entre NodeList y HTMLCollection, incluyendo cuál es "viva" y cuál no?</li>
+        <li>¿Puedo explicar la diferencia entre textContent, innerText e innerHTML, y cuándo cada una es riesgosa?</li>
+        <li>¿Sé usar classList.add/remove/toggle/contains sin mirar la documentación?</li>
+        <li>¿Puedo explicar por qué createElement no muestra nada hasta que uso appendChild?</li>
+        <li>¿Puedo explicar qué hace event.preventDefault() y dar un ejemplo real donde sea necesario?</li>
+        <li>¿Entiendo qué es el bubbling de eventos y puedo dar un ejemplo simple con un padre y un hijo?</li>
+        <li>¿Puedo explicar por qué DOMContentLoaded evita el problema de seleccionar un elemento que "no existe todavía"?</li>
+        <li>¿Puedo escribir de memoria un event listener de click que modifique el texto de otro elemento?</li>
+        <li>¿Sé explicar para qué sirve localStorage y qué limitación tiene con los tipos de datos que guarda?</li>
+        <li>¿Puedo combinar un bucle for con createElement y un if/else para generar elementos dinámicos con distinta clase CSS según una condición?</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s10">
+      <div class="block-head"><span class="idx">10</span><h2>Checklist final de dominio</h2></div>
+      <ul class="check-list">
+        <li><input type="checkbox" id="c1"><label for="c1">Entiendo qué es el DOM y cómo se relaciona (y se diferencia) del HTML original</label></li>
+        <li><input type="checkbox" id="c2"><label for="c2">Puedo seleccionar elementos usando getElementById, querySelector y querySelectorAll</label></li>
+        <li><input type="checkbox" id="c3"><label for="c3">Entiendo la diferencia entre NodeList y HTMLCollection</label></li>
+        <li><input type="checkbox" id="c4"><label for="c4">Sé modificar contenido con textContent e innerHTML, sabiendo cuándo cada uno es apropiado</label></li>
+        <li><input type="checkbox" id="c5"><label for="c5">Domino la manipulación de clases con classList (add, remove, toggle, contains)</label></li>
+        <li><input type="checkbox" id="c6"><label for="c6">Sé leer, escribir y eliminar atributos con getAttribute/setAttribute/removeAttribute</label></li>
+        <li><input type="checkbox" id="c7"><label for="c7">Puedo crear elementos con createElement y agregarlos al DOM con appendChild</label></li>
+        <li><input type="checkbox" id="c8"><label for="c8">Sé navegar por el DOM usando parentElement, children y los hermanos (nextElementSibling)</label></li>
+        <li><input type="checkbox" id="c9"><label for="c9">Puedo agregar y manejar eventos con addEventListener, usando el objeto event</label></li>
+        <li><input type="checkbox" id="c10"><label for="c10">Entiendo qué es event.preventDefault() y cuándo se necesita</label></li>
+        <li><input type="checkbox" id="c11"><label for="c11">Entiendo el concepto básico de bubbling (propagación de eventos)</label></li>
+        <li><input type="checkbox" id="c12"><label for="c12">Sé por qué y cómo usar DOMContentLoaded</label></li>
+        <li><input type="checkbox" id="c13"><label for="c13">Puedo implementar una funcionalidad básica de Dark Mode/Light Mode con localStorage</label></li>
+        <li><input type="checkbox" id="c14"><label for="c14">Puedo combinar selección + eventos + modificación del DOM para crear una pequeña interacción completa (contador, toggle, texto dinámico)</label></li>
+      </ul>
+      <p class="progress-note">Marca cada casilla a medida que repases — el progreso es solo visual en esta página.</p>
+    </section>
+
+    <section class="block" id="s11">
+      <div class="block-head"><span class="idx">11</span><h2>Recursos y lectura adicional</h2></div>
+      <div class="callout">
+        <span class="tag">MDN</span>
+        Introducción al DOM: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction" target="_blank" rel="noopener" style="color: var(--teal);">developer.mozilla.org/.../Document_Object_Model/Introduction</a>
+      </div>
+      <div class="callout">
+        <span class="tag">MDN</span>
+        Eventos e introducción a addEventListener: <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener" style="color: var(--teal);">developer.mozilla.org/.../EventTarget/addEventListener</a>
+      </div>
+      <div class="callout">
+        <span class="tag">MDN</span>
+        localStorage y Web Storage API: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank" rel="noopener" style="color: var(--teal);">developer.mozilla.org/.../Window/localStorage</a>
+      </div>
+      <p class="dim">Herramientas útiles: VS Code, DevTools del navegador (pestaña Elements/Inspector y Console) · Plataformas de práctica: CodePen, JSFiddle, HackerRank.</p>
+      <p class="dim">Nota: los enlaces y plataformas sugeridas pueden variar según lo que recomiende tu instructor o plataforma de curso específica.</p>
+    </section>
+
+    <section class="block" id="s12">
+      <div class="block-head"><span class="idx">12</span><h2>Próximas clases</h2></div>
+      <table>
+        <tr><th>Clase</th><th>Tema</th></tr>
+        <tr><td><b>Clase 5</b></td><td>Interactividad con el DOM (esta clase)</td></tr>
+        <tr><td><b>Clase 6</b></td><td>Maquetación avanzada con CSS — Flexbox y Grid para layouts complejos y responsivos</td></tr>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    Formador: Steven Zuluaga Cortés · <a href="https://www.devseniorcode.com" target="_blank" rel="noopener">devseniorcode.com</a> · Academy@devseniorcode.com · @devseniorcode
+  </footer>
+
+</body>
+</html>
