@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 1 — El Despegue: Entorno y Stack MEAN</title>
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/jetbrains-mono/2.304/JetBrainsMono.css');
+
+  :root{
+    --bg: #12151a;
+    --bg-alt: #181c23;
+    --surface: #1d222b;
+    --surface-hi: #242a35;
+    --line: #2a303b;
+    --text: #e7e4da;
+    --text-dim: #93998f;
+    --amber: #e8a33d;
+    --amber-dim: #a8763a;
+    --teal: #5fb3ad;
+    --red: #d97a6c;
+    --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Menlo, monospace;
+    --sans: 'IBM Plex Sans', Segoe UI, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,163,61,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(95,179,173,0.05), transparent 60%);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height:100vh;
+  }
+
+  /* Corner tag */
+  .corner-tag{
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--amber-dim);
+    color: var(--amber);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    padding: 7px 12px;
+    border-radius: 4px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  }
+  .corner-tag::before{
+    content: "● ";
+    color: var(--teal);
+  }
+
+  /* Terminal chrome header */
+  .term-bar{
+    max-width: 920px;
+    margin: 48px auto 0;
+    padding: 0 20px;
+  }
+  .term-window{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px 10px 0 0;
+    overflow:hidden;
+  }
+  .term-titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 10px 14px;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--line);
+  }
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.red{ background:#e0645a; }
+  .dot.yellow{ background:#e0b25a; }
+  .dot.green{ background:#5cbf7a; }
+  .term-title{
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .term-body{
+    padding: 34px 36px 30px;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--teal);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  h1.hero-title{
+    font-family: var(--mono);
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.15;
+    margin: 10px 0 6px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .hero-title .prompt{ color: var(--amber); }
+  .hero-sub{
+    color: var(--text-dim);
+    font-size: 15.5px;
+    max-width: 60ch;
+    margin: 10px 0 0;
+  }
+  .meta-row{
+    display:flex; flex-wrap:wrap; gap: 10px 22px;
+    margin-top: 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .meta-row b{ color: var(--text); font-weight: 600; }
+
+  /* Table of contents */
+  nav.toc{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 22px 20px 0;
+  }
+  .toc-inner{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0 0 10px 10px;
+    padding: 20px 24px 22px;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 20px;
+  }
+  @media (max-width: 640px){ .toc-inner{ grid-template-columns: 1fr; } }
+  .toc-inner a{
+    color: var(--text-dim);
+    text-decoration:none;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    display:flex;
+    gap: 8px;
+  }
+  .toc-inner a:hover{ background: var(--surface-hi); color: var(--amber); }
+  .toc-inner a span.n{ color: var(--amber-dim); }
+
+  main{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  section.block{
+    margin-bottom: 44px;
+    scroll-margin-top: 30px;
+  }
+  .block-head{
+    display:flex;
+    align-items:baseline;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .block-head .idx{
+    font-family: var(--mono);
+    color: var(--amber);
+    font-size: 14px;
+  }
+  .block-head h2{
+    font-family: var(--mono);
+    font-size: 19px;
+    margin: 0;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  p{ color: var(--text); font-size: 15px; }
+  p.dim{ color: var(--text-dim); }
+
+  .subsection{
+    margin-bottom: 26px;
+    padding-left: 16px;
+    border-left: 2px solid var(--line);
+  }
+  .subsection h3{
+    font-family: var(--mono);
+    font-size: 15.5px;
+    color: var(--teal);
+    margin: 0 0 8px;
+  }
+
+  code, pre code{
+    font-family: var(--mono);
+    font-size: 13.5px;
+  }
+  code.inline{
+    background: var(--surface-hi);
+    color: var(--amber);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+  pre{
+    background: #0e1116;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber-dim);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 14px 0;
+  }
+  pre code{ color: #c9d6d8; }
+  pre .cmt{ color: var(--text-dim); }
+  pre .flag{ color: var(--amber); }
+  pre .ph{ color: var(--teal); }
+
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td{
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  th{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: var(--surface-hi);
+  }
+  td b{ color: var(--text); }
+  tr:hover td{ background: rgba(255,255,255,0.02); }
+
+  .callout{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--teal);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 14.5px;
+  }
+  .callout.warn{ border-left-color: var(--red); }
+  .callout .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    display:block;
+    margin-bottom: 6px;
+  }
+
+  .metaphor-grid{
+    display: grid;
+    gap: 14px;
+  }
+  .metaphor-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .metaphor-card .label{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display:block;
+    margin-bottom: 8px;
+  }
+
+  ul.errors{ list-style: none; padding: 0; margin: 0; }
+  ul.errors li{
+    position: relative;
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  ul.errors li::before{
+    content: "✕";
+    position:absolute; left: 0; top: 10px;
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  ul.errors li:last-child{ border-bottom: none; }
+
+  .quiz-list{ list-style: none; padding: 0; margin: 0; counter-reset: q; }
+  .quiz-list li{
+    counter-increment: q;
+    padding: 12px 14px 12px 44px;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+  }
+  .quiz-list li::before{
+    content: counter(q, decimal-leading-zero);
+    position: absolute;
+    left: 12px; top: 12px;
+    font-family: var(--mono);
+    color: var(--amber-dim);
+    font-size: 13px;
+  }
+
+  .check-list{ list-style:none; padding:0; margin:0; }
+  .check-list li{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .check-list li:last-child{ border-bottom:none; }
+  .check-list input[type=checkbox]{
+    appearance: none;
+    -webkit-appearance:none;
+    width: 18px; height: 18px;
+    min-width:18px;
+    border: 1px solid var(--amber-dim);
+    border-radius: 4px;
+    background: var(--bg-alt);
+    cursor:pointer;
+    margin-top: 2px;
+    position: relative;
+  }
+  .check-list input[type=checkbox]:checked{
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+  .check-list input[type=checkbox]:checked::after{
+    content:"✓";
+    position:absolute; left:2px; top:-2px;
+    color: #12151a;
+    font-size: 13px;
+    font-weight:700;
+  }
+  .check-list label{ cursor:pointer; }
+  .check-list input[type=checkbox]:checked + label{
+    color: var(--text-dim);
+    text-decoration: line-through;
+  }
+
+  .glossary-term{ color: var(--amber); font-family: var(--mono); font-size: 13.5px; }
+
+  footer{
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: var(--mono);
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  footer a{ color: var(--teal); text-decoration:none; }
+
+  .progress-note{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  @media (max-width: 560px){
+    .term-body{ padding: 24px 20px 22px; }
+    main{ padding: 30px 16px 80px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="corner-tag">JS-M1-C1</div>
+
+  <div class="term-bar">
+    <div class="term-window">
+      <div class="term-titlebar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <div class="term-title">clase_1.md — ~/ideade/js-mean-mastery/m1-u1</div>
+      </div>
+      <div class="term-body">
+        <span class="eyebrow">JavaScript MEAN Mastery · Módulo 1 · Unidad 1</span>
+        <h1 class="hero-title"><span class="prompt">$</span> El Despegue: Entorno de Desarrollo y el Stack MEAN</h1>
+        <p class="hero-sub">Guía de estudio completa de la Clase 1 — configuración del entorno profesional y primer contacto con MongoDB, Express, Angular y Node.</p>
+        <div class="meta-row">
+          <span>Formador: <b>Steven Zuluaga Cortés</b></span>
+          <span>Duración: <b>3 horas</b></span>
+          <span>Nivel: <b>Junior</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-inner">
+      <a href="#s1"><span class="n">01</span> Índice de subtemas</a>
+      <a href="#s2"><span class="n">02</span> Explicación por subtema</a>
+      <a href="#s3"><span class="n">03</span> Glosario de conceptos</a>
+      <a href="#s4"><span class="n">04</span> ¿Para qué sirve?</a>
+      <a href="#s5"><span class="n">05</span> Ejemplos abstractos</a>
+      <a href="#s6"><span class="n">06</span> Excepciones y casos especiales</a>
+      <a href="#s7"><span class="n">07</span> Metáforas visuales</a>
+      <a href="#s8"><span class="n">08</span> Errores típicos</a>
+      <a href="#s9"><span class="n">09</span> Autoevaluación</a>
+      <a href="#s10"><span class="n">10</span> Checklist final</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <section class="block" id="s1">
+      <div class="block-head"><span class="idx">01</span><h2>Índice de subtemas</h2></div>
+      <ul class="errors" style="list-style:none;">
+      </ul>
+      <ol style="color:var(--text); font-size:15px; padding-left:22px;">
+        <li>Qué es el desarrollo web y el concepto de aplicación Full Stack</li>
+        <li>El Stack MEAN: qué es y rol de cada componente</li>
+        <li>Instalación y verificación de Node.js</li>
+        <li>Instalación y configuración de VS Code</li>
+        <li>Instalación y configuración de Git</li>
+        <li>Instalación de Angular CLI y creación de un proyecto base</li>
+        <li>Configuración de MongoDB Atlas (base de datos en la nube)</li>
+        <li>Estructura de un proyecto generado por Angular CLI</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s2">
+      <div class="block-head"><span class="idx">02</span><h2>Explicación detallada por subtema</h2></div>
+
+      <div class="subsection">
+        <h3>2.1 · Desarrollo web y Full Stack</h3>
+        <p>Una aplicación web moderna se divide en dos grandes partes que se comunican entre sí:</p>
+        <p><b>Frontend:</b> lo que el usuario ve y con lo que interactúa en el navegador (interfaz, botones, formularios).<br>
+        <b>Backend:</b> la lógica que corre en un servidor, procesa datos, aplica reglas de negocio y habla con la base de datos.</p>
+        <p><b>Full Stack</b> significa que un mismo conjunto de tecnologías puede trabajar en ambas partes. El Stack MEAN es "full stack" porque usa JavaScript tanto en frontend como en backend — no necesitas aprender dos lenguajes distintos.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.2 · El Stack MEAN</h3>
+        <table>
+          <tr><th>Letra</th><th>Tecnología</th><th>Rol en la aplicación</th></tr>
+          <tr><td><b>M</b></td><td>MongoDB</td><td>Base de datos NoSQL — documentos tipo JSON, no tablas rígidas</td></tr>
+          <tr><td><b>E</b></td><td>Express</td><td>Framework de backend sobre Node.js — rutas y reglas del servidor</td></tr>
+          <tr><td><b>A</b></td><td>Angular</td><td>Framework de frontend — construye la interfaz del usuario</td></tr>
+          <tr><td><b>N</b></td><td>Node.js</td><td>Entorno de ejecución — corre JavaScript fuera del navegador</td></tr>
+        </table>
+        <p class="dim">Node.js es la base sobre la que corre Express; Angular corre en el navegador del usuario; MongoDB es el almacenamiento al que Express se conecta.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.3 · Node.js — instalación y verificación</h3>
+        <p>Permite ejecutar JavaScript <b>fuera del navegador</b>. Se instala la versión <b>LTS</b> (Long Term Support) desde nodejs.org — más estable que "Current".</p>
+        <pre><code><span class="cmt"># Verificación en terminal</span>
+node -v
+npm -v</code></pre>
+        <p class="dim"><code class="inline">npm</code> (Node Package Manager) viene incluido con Node y gestiona paquetes del ecosistema JS.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.4 · VS Code</h3>
+        <p>Editor de código estándar de la industria. Extensiones instaladas en esta clase:</p>
+        <div class="callout">
+          <span class="tag">Live Server</span>
+          Recarga automática de la página al guardar cambios en HTML/CSS/JS.
+        </div>
+        <div class="callout">
+          <span class="tag">Prettier</span>
+          Formatea el código automáticamente (indentación, comillas, espacios).
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>2.5 · Git</h3>
+        <p>Sistema de control de versiones: guarda un historial de cambios para retroceder, comparar y trabajar en equipo sin sobrescribir el trabajo de otros.</p>
+        <pre><code><span class="cmt"># Configuración inicial, una sola vez por computador</span>
+git config --global user.name <span class="ph">"Tu Nombre"</span>
+git config --global user.email <span class="ph">"tu.email@ejemplo.com"</span></code></pre>
+        <p class="dim">No crea ningún proyecto — solo le dice a Git <b>quién eres</b>, para que cada commit quede firmado.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.6 · Angular CLI</h3>
+        <p>Genera automáticamente toda la estructura base de un proyecto Angular.</p>
+        <pre><code><span class="cmt"># Instalación global</span>
+npm install <span class="flag">-g</span> @angular/cli
+
+<span class="cmt"># Proyecto de prueba</span>
+mkdir prueba-cli
+cd prueba-cli
+ng new mi-app <span class="flag">--minimal</span></code></pre>
+        <p class="dim">El flag <code class="inline">--minimal</code> genera una versión reducida, ideal para una primera exploración.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>2.7 · MongoDB Atlas</h3>
+        <p>En vez de instalar MongoDB localmente, se usa <b>MongoDB Atlas</b>: MongoDB alojado en la nube, con capa gratuita.</p>
+        <p>Pasos cubiertos: crear cuenta gratuita → crear un <b>clúster</b> → obtener la <b>cadena de conexión</b> (connection string) que Express usará más adelante.</p>
+        <div class="callout warn">
+          <span class="tag">Dato sensible</span>
+          La cadena de conexión contiene usuario/contraseña — no se sube a repositorios públicos.
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="s3">
+      <div class="block-head"><span class="idx">03</span><h2>Conceptos clave (glosario)</h2></div>
+      <table>
+        <tr><th>Término</th><th>Definición</th></tr>
+        <tr><td><span class="glossary-term">Stack</span></td><td>Conjunto de tecnologías usadas juntas para construir una aplicación completa</td></tr>
+        <tr><td><span class="glossary-term">Frontend</span></td><td>Parte de la aplicación que corre en el navegador del usuario</td></tr>
+        <tr><td><span class="glossary-term">Backend</span></td><td>Parte de la aplicación que corre en un servidor, maneja lógica y datos</td></tr>
+        <tr><td><span class="glossary-term">Full Stack</span></td><td>Que abarca tanto frontend como backend</td></tr>
+        <tr><td><span class="glossary-term">Runtime</span></td><td>Programa que permite ejecutar código (JS fuera del navegador)</td></tr>
+        <tr><td><span class="glossary-term">NoSQL</span></td><td>Base de datos sin tablas rígidas, con documentos flexibles (JSON)</td></tr>
+        <tr><td><span class="glossary-term">CLI</span></td><td>Herramienta que se usa escribiendo comandos en terminal</td></tr>
+        <tr><td><span class="glossary-term">Control de versiones</span></td><td>Sistema que registra el historial de cambios de un proyecto</td></tr>
+        <tr><td><span class="glossary-term">Clúster</span></td><td>Conjunto de servidores donde se aloja tu base de datos en la nube</td></tr>
+        <tr><td><span class="glossary-term">Connection string</span></td><td>URL con credenciales para conectarse a una base de datos remota</td></tr>
+      </table>
+    </section>
+
+    <section class="block" id="s4">
+      <div class="block-head"><span class="idx">04</span><h2>¿Para qué sirve cada concepto?</h2></div>
+      <ul class="errors" style="--tick:true;">
+        <li style="border-bottom:1px solid var(--line);"><b>Node.js</b> → correr JavaScript como backend, sin otro lenguaje.</li>
+        <li><b>VS Code + extensiones</b> → acelera el flujo de trabajo diario.</li>
+        <li><b>Git</b> → indispensable para trabajar en equipo sin perder trabajo ajeno.</li>
+        <li><b>Angular CLI</b> → evita configurar manualmente un proyecto desde cero.</li>
+        <li><b>MongoDB Atlas</b> → base de datos real, accesible desde cualquier lugar, sin mantenimiento propio.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s5">
+      <div class="block-head"><span class="idx">05</span><h2>Ejemplos abstractos</h2></div>
+      <pre><code>git config --global user.name <span class="ph">"[tu_nombre]"</span>
+git config --global user.email <span class="ph">"[tu_correo]"</span></code></pre>
+      <p class="dim"><code class="inline">git config --global user.name/user.email</code> son <b>fijos</b>. <span class="glossary-term">[tu_nombre]</span> y <span class="glossary-term">[tu_correo]</span> los defines tú.</p>
+
+      <pre><code>mkdir <span class="ph">[nombre_carpeta]</span>
+cd <span class="ph">[nombre_carpeta]</span>
+ng new <span class="ph">[nombre_app]</span> <span class="flag">--minimal</span></code></pre>
+      <p class="dim"><code class="inline">mkdir, cd, ng new, --minimal</code> son fijos. Los nombres entre corchetes son tuyos y se repiten según el proyecto.</p>
+
+      <pre><code>node -v
+npm -v</code></pre>
+      <p class="dim">Estos comandos son totalmente fijos — sin ningún valor reemplazable.</p>
+    </section>
+
+    <section class="block" id="s6">
+      <div class="block-head"><span class="idx">06</span><h2>Excepciones y casos especiales</h2></div>
+      <div class="callout warn"><span class="tag">Node LTS vs Current</span>Instalar "Current" en vez de "LTS" puede traer cambios recientes que rompan compatibilidad con paquetes usados en clase.</div>
+      <div class="callout warn"><span class="tag">npm install -g</span>Si olvidas el flag <code class="inline">-g</code>, Angular CLI solo queda instalado en la carpeta actual y <code class="inline">ng</code> no funcionará en otro lugar.</div>
+      <div class="callout warn"><span class="tag">Git config sin --global</span>Sin <code class="inline">--global</code>, la configuración solo aplica al proyecto actual — "en otro proyecto no aparece mi nombre".</div>
+      <div class="callout warn"><span class="tag">MongoDB Atlas free tier</span>Límites de almacenamiento y rendimiento — suficiente para aprender, no para producción real.</div>
+      <div class="callout warn"><span class="tag">Connection string expuesta</span>Compartirla en un repositorio público es un riesgo de seguridad real.</div>
+    </section>
+
+    <section class="block" id="s7">
+      <div class="block-head"><span class="idx">07</span><h2>Metáforas y ejemplos visuales</h2></div>
+      <div class="metaphor-grid">
+        <div class="metaphor-card"><span class="label">Stack MEAN</span>Una fábrica de comida rápida: Angular es el mostrador (interfaz), Express es la cocina (lógica), Node.js es la electricidad (motor), MongoDB es la despensa (datos).</div>
+        <div class="metaphor-card"><span class="label">Git</span>El historial de cambios de un documento con control de versiones, pero mucho más potente: puedes ver exactamente qué cambió y quién lo cambió.</div>
+        <div class="metaphor-card"><span class="label">Angular CLI</span>Un asistente de mudanza que arma todos los muebles de una casa nueva por ti, en vez de armarlos desde cero.</div>
+        <div class="metaphor-card"><span class="label">MongoDB Atlas</span>Alquilar una bodega en un depósito profesional en vez de guardar tus cosas en el clóset de tu propia casa.</div>
+      </div>
+    </section>
+
+    <section class="block" id="s8">
+      <div class="block-head"><span class="idx">08</span><h2>Errores típicos de un junior</h2></div>
+      <ul class="errors">
+        <li>Instalar Node.js y olvidar reiniciar la terminal antes de verificar con <code class="inline">node -v</code>.</li>
+        <li>Instalar Angular CLI sin <code class="inline">-g</code> y no entender por qué <code class="inline">ng</code> "no existe" en otra carpeta.</li>
+        <li>Olvidar configurar Git antes del primer commit en clases futuras.</li>
+        <li>Perder la cadena de conexión de MongoDB Atlas y tener que regenerarla.</li>
+        <li>Confundir la carpeta de prueba con la carpeta del proyecto real, mezclando archivos.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="s9">
+      <div class="block-head"><span class="idx">09</span><h2>Preguntas de autoevaluación</h2></div>
+      <ol class="quiz-list">
+        <li>¿Puedo explicar qué significa cada letra del Stack MEAN y qué rol cumple?</li>
+        <li>¿Puedo explicar la diferencia entre frontend y backend con mis propias palabras?</li>
+        <li>¿Sé para qué sirve Node.js y por qué es necesario antes de instalar Angular CLI?</li>
+        <li>¿Puedo ejecutar y explicar qué hacen <code class="inline">node -v</code> y <code class="inline">npm -v</code>?</li>
+        <li>¿Entiendo por qué se configura <code class="inline">git config --global</code> antes de usar Git?</li>
+        <li>¿Sé qué hace <code class="inline">ng new [nombre] --minimal</code> y qué genera?</li>
+        <li>¿Puedo explicar por qué se usa MongoDB Atlas en vez de instalar MongoDB localmente?</li>
+        <li>¿Entiendo qué es una connection string y por qué debo protegerla?</li>
+        <li>¿Sé qué extensiones de VS Code se instalaron y para qué sirve cada una?</li>
+        <li>¿Puedo explicar con una metáfora propia cómo se conectan Angular, Express, Node y MongoDB?</li>
+      </ol>
+    </section>
+
+    <section class="block" id="s10">
+      <div class="block-head"><span class="idx">10</span><h2>Checklist final de dominio</h2></div>
+      <ul class="check-list">
+        <li><input type="checkbox" id="c1"><label for="c1">Entiendo qué es el Stack MEAN y el rol de cada componente</label></li>
+        <li><input type="checkbox" id="c2"><label for="c2">Instalé y verifiqué Node.js correctamente</label></li>
+        <li><input type="checkbox" id="c3"><label for="c3">Instalé VS Code con Live Server y Prettier</label></li>
+        <li><input type="checkbox" id="c4"><label for="c4">Instalé Git y configuré nombre/correo con --global</label></li>
+        <li><input type="checkbox" id="c5"><label for="c5">Instalé Angular CLI global y creé un proyecto de prueba</label></li>
+        <li><input type="checkbox" id="c6"><label for="c6">Creé cuenta en MongoDB Atlas, un clúster y mi connection string</label></li>
+        <li><input type="checkbox" id="c7"><label for="c7">Explico frontend vs backend sin dudar</label></li>
+        <li><input type="checkbox" id="c8"><label for="c8">Entiendo por qué se usa la nube en vez de instalación local</label></li>
+        <li><input type="checkbox" id="c9"><label for="c9">Identifico los archivos generados por Angular CLI</label></li>
+        <li><input type="checkbox" id="c10"><label for="c10">Confío en decir que "vi" esta clase completa</label></li>
+      </ul>
+      <p class="progress-note">Marca cada casilla a medida que repases — el progreso es solo visual en esta página.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    Formador: Steven Zuluaga Cortés · <a href="https://www.devseniorcode.com" target="_blank" rel="noopener">devseniorcode.com</a> · Academy@devseniorcode.com · @devseniorcode
+  </footer>
+
+</body>
+</html>
